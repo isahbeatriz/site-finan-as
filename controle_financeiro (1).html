@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Financeiro</title>
+<style>
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --card:#171722;
+  --card2:#1d1d2b;
+  --purple:#8b5cf6;
+  --purple2:#a78bfa;
+  --purple-dark:#6d28d9;
+  --green:#34d399;
+  --red:#f87171;
+  --text:#f4f4f6;
+  --muted:#9ca3af;
+  --border:#2a2a3d;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;}
+body{background:var(--bg);color:var(--text);min-height:100vh;}
+.gradient-bg{position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse at top,var(--glow,#1a1038) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,var(--glow2,#2d1b4e) 0%,transparent 50%),
+             var(--bg,#0a0a0f);}
+.wrap{max-width:1280px;margin:0 auto;padding:20px;}
+
+/* ===== LOGIN ===== */
+.login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-card{width:100%;max-width:400px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.login-logo{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,var(--purple),var(--purple-dark));display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;margin:0 auto 18px;box-shadow:0 0 30px rgba(139,92,246,.5);}
+.login-card h2{text-align:center;font-size:22px;margin-bottom:4px;}
+.login-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:26px;}
+.login-tabs{display:flex;gap:8px;margin-bottom:22px;background:var(--bg);border-radius:10px;padding:4px;}
+.ltab{flex:1;padding:11px;border:none;background:none;color:var(--muted);font-weight:600;border-radius:8px;cursor:pointer;font-size:14px;transition:all .2s;}
+.ltab.active{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;}
+.login-card form{margin-bottom:12px;}
+.login-card .btn-block{width:100%;margin-top:8px;}
+.login-msg{min-height:18px;text-align:center;color:var(--red);font-size:13px;margin-top:4px;}
+.login-msg.ok{color:#34d399;}
+.login-note{text-align:center;color:var(--muted);font-size:12px;margin-top:14px;}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0 4px;color:var(--muted);font-size:12px;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+#googleButtonHolder .g_id_signin{width:100%;}
+
+/* HEADER */
+.app-header{display:flex;justify-content:space-between;align-items:center;padding:14px 0;margin-bottom:24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:14px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:46px;height:46px;border-radius:12px;
+  background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;
+  box-shadow:0 0 24px rgba(139,92,246,.45);}
+.logo h1{font-size:20px;font-weight:700;letter-spacing:.3px;}
+.logo span{color:var(--muted);font-size:13px;display:block;font-weight:400;}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.user-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:14px;color:var(--text);}
+.theme-panel{position:fixed;top:74px;right:20px;z-index:50;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);width:216px;}
+.profile-panel{position:fixed;top:74px;right:20px;z-index:51;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);width:260px;}
+.settle-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:none;align-items:center;justify-content:center;padding:16px;}
+.settle-modal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;width:320px;max-width:100%;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.settle-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.settle-sub{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.settle-msg{font-size:12px;color:var(--red);min-height:16px;margin-top:8px;text-align:center;}
+.paid-note{font-size:10px;color:var(--muted);}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(52,211,153,.15);border:1px solid #34d399;color:#34d399;padding:11px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:95;opacity:0;pointer-events:none;transition:opacity .25s;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.toast.show{opacity:1;}
+.tip{position:relative;cursor:help;}
+.tip:hover::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#2a2a3a;color:#e5e5f0;font-size:11px;padding:6px 10px;border-radius:8px;white-space:normal;max-width:240px;width:max-content;z-index:70;box-shadow:0 6px 20px rgba(0,0,0,.45);pointer-events:none;text-align:center;line-height:1.4;border:1px solid var(--border);}
+.theme-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:600;}
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.theme-swatch{width:36px;height:36px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:transform .15s;}
+.theme-swatch:hover{transform:scale(1.12);}
+.theme-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--bg);}
+.theme-custom{margin-bottom:14px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:10px;padding:10px;}
+.theme-custom-label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;}
+.field-hint{display:block;font-size:11px;color:var(--muted);margin-top:4px;}
+.valor-row{position:relative;display:flex;align-items:stretch;border:1px solid var(--border);border-radius:8px;background:var(--bg);}
+.valor-row:focus-within{border-color:var(--purple);}
+.valor-row input[type=text], .valor-row input[type=number]{flex:1;min-width:0;border:none;border-radius:8px 0 0 8px;background:transparent;}
+.valor-row select{display:none;}
+.valor-arrow{flex:0 0 auto;width:40px;border:none;border-left:1px solid var(--border);border-radius:0 8px 8px 0;background:transparent;color:var(--purple);font-size:15px;cursor:pointer;}
+.valor-arrow:hover{color:var(--purple2);background:rgba(139,92,246,.12);}
+.valor-options{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:70;background:var(--card2);border:1px solid var(--border);border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.5);padding:6px;max-height:280px;overflow:auto;}
+.valor-item{display:block;width:100%;text-align:left;padding:9px 11px;border:none;background:none;color:var(--text);border-radius:7px;cursor:pointer;font-size:13px;}
+.valor-item:hover{background:var(--purple);color:#fff;}
+.valor-item.sel{color:var(--purple2);font-weight:600;}
+.color-row{display:flex;align-items:center;gap:10px;}
+.color-row input[type=color]{width:46px;height:34px;border:none;border-radius:6px;cursor:pointer;background:none;padding:0;}
+#colorHex{color:var(--text);font-size:13px;font-family:monospace;}
+.color-wheel{width:200px;height:200px;border-radius:50%;margin:0 auto 10px;cursor:pointer;display:block;box-shadow:0 0 0 3px var(--border),0 8px 24px rgba(0,0,0,.45);}
+.color-hint{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px;}
+.month-nav{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;}
+.month-nav button{background:none;border:none;color:var(--purple);font-size:22px;cursor:pointer;padding:0 10px;font-weight:700;line-height:1;}
+.month-nav button:hover{color:var(--purple2);}
+.month-nav .month-label{min-width:150px;text-align:center;font-weight:600;font-size:16px;}
+.month-nav input,.month-nav select{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:13px;}
+
+/* SUMMARY */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.card.receitas::before{background:linear-gradient(90deg,#34d399,#8b5cf6);}
+.card.despesas::before{background:linear-gradient(90deg,#8b5cf6,#f87171);}
+.card.saldo::before{background:linear-gradient(90deg,var(--purple),var(--purple-dark));}
+.card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.card .value{font-size:26px;font-weight:700;}
+.card.receitas .value{color:#34d399;}
+.card.despesas .value{color:#f87171;}
+.card.saldo .value{color:var(--purple);}
+.card .sub{font-size:12px;color:var(--muted);margin-top:6px;}
+
+/* BALANCE PANEL */
+.balance-panel{background:linear-gradient(135deg,#1d1d2b,#241f3a);border:1px solid var(--border);border-radius:18px;padding:22px;margin:20px 0;box-shadow:0 8px 30px rgba(0,0,0,.4);}
+.bal-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.bal-label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+.bal-total{font-size:34px;font-weight:800;color:var(--purple2);text-shadow:0 0 22px rgba(139,92,246,.35);}
+.bal-right{text-align:right;}
+.bal-clean{font-size:13px;color:var(--muted);margin-top:4px;}
+.bal-clean b{color:var(--purple2);}
+.bal-row{display:flex;gap:16px;margin-top:18px;flex-wrap:wrap;}
+.bal-cell{flex:1;min-width:150px;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);}
+.bal-cell b{font-size:19px;color:var(--text);margin-left:auto;}
+.bal-cell .dot{width:12px;height:12px;border-radius:50%;display:inline-block;}
+.bal-cell.dinheiro .dot{background:#34d399;box-shadow:0 0 8px #34d399;}
+.bal-cell.pix .dot{background:#a78bfa;box-shadow:0 0 8px #a78bfa;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin:24px 0 16px;flex-wrap:wrap;}
+.tab{padding:10px 24px;border-radius:10px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s;user-select:none;}
+.tab.active{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(139,92,246,.35);}
+.tab:hover:not(.active){color:var(--text);border-color:var(--purple);}
+
+/* FORM */
+.form-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px;}
+.form-section h3{font-size:15px;margin-bottom:16px;color:var(--purple);display:flex;align-items:center;gap:8px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.field input,.field select{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;transition:border .2s;}
+.field input:focus,.field select:focus{border-color:var(--purple);}
+.pass-wrap{position:relative;}
+.pass-wrap input{padding-right:46px;}
+.pass-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:4px;line-height:1;}
+.pass-toggle:hover{color:var(--purple);}
+.form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn-fixo.active{background:var(--purple);border-color:var(--purple);color:#fff;}
+.btn{border:none;padding:11px 24px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.35);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(139,92,246,.5);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{color:var(--text);border-color:var(--purple);}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--card2);padding:14px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border);}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:14px;}
+tbody tr:hover{background:var(--card2);}
+tbody tr:last-child td{border-bottom:none;}
+.tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.tag.receita{background:rgba(52,211,153,.15);color:#34d399;}
+.tag.despesa{background:rgba(248,113,113,.15);color:#f87171;}
+.tag.metodo{background:rgba(167,139,250,.15);color:#a78bfa;}
+.tag.metodo.dinheiro{background:rgba(52,211,153,.15);color:#34d399;}
+.amount{font-weight:700;}
+.amount.positive{color:#34d399;}
+.amount.negative{color:#f87171;}
+.actions-cell{display:flex;gap:6px;justify-content:flex-end;}
+.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:2px;transition:color .15s;}
+.fix-tgl{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);padding:2px;white-space:nowrap;}
+.fix-tgl:hover{color:var(--text);}
+.fix-circle{width:15px;height:15px;border-radius:50%;border:2px solid var(--muted);display:inline-block;box-sizing:border-box;flex-shrink:0;transition:all .15s;}
+.fix-tgl.on .fix-circle{background:var(--purple);border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.2);}
+.fix-tgl.on{color:var(--purple);}
+.fix-label{line-height:1;}
+.icon-btn:hover{color:var(--purple);}
+.icon-btn.del:hover{color:var(--red);}
+.icon-btn.settle{background:rgba(52,211,153,.15);color:#34d399;padding:6px 9px;border-radius:8px;font-size:12px;white-space:nowrap;}
+.icon-btn.settle:hover{background:rgba(52,211,153,.28);color:#34d399;}
+.icon-btn.settle.devo{background:rgba(248,113,113,.15);color:#f87171;}
+.icon-btn.settle.devo:hover{background:rgba(248,113,113,.28);color:#f87171;}
+.alerta-tag{display:inline-block;background:#f87171;color:#fff;font-size:10px;font-weight:700;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle;}
+tr.alerta td{background:rgba(248,113,113,.10);}
+.empty{text-align:center;padding:40px;color:var(--muted);}
+.empty .emoji{font-size:36px;margin-bottom:10px;display:block;}
+
+/* BREAKDOWN */
+.breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:20px;}
+.bar-item{margin-bottom:16px;}
+.bar-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+.bar-track{background:var(--bg);height:10px;border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple-dark));border-radius:5px;transition:width .4s;}
+
+/* RESUMO */
+.donut-chart{display:flex;gap:22px;align-items:center;flex-wrap:wrap;}
+.donut{width:150px;height:150px;border-radius:50%;position:relative;flex-shrink:0;}
+.donut-hole{position:absolute;inset:20px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;text-align:center;}
+.legend{display:flex;flex-direction:column;gap:9px;flex:1;min-width:170px;}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);}
+.legend-item b{margin-left:auto;color:var(--text);}
+.swatch{width:12px;height:12px;border-radius:3px;display:inline-block;flex-shrink:0;}
+.ov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.ov-item{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.ov-label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.ov-val{font-size:18px;font-weight:700;}
+.ov-val.rec{color:#34d399;} .ov-val.des{color:#f87171;} .ov-val.sal{color:var(--purple2);}
+.ov-bar{height:12px;background:var(--bg);border-radius:6px;overflow:hidden;margin-bottom:8px;}
+.ov-fill{height:100%;background:linear-gradient(90deg,#f87171,#8b5cf6);}
+.ov-caption{font-size:12px;color:var(--muted);text-align:center;}
+.pie-wrap{display:flex;align-items:center;gap:24px;margin-top:20px;flex-wrap:wrap;}
+.pie{width:130px;height:130px;border-radius:50%;position:relative;flex-shrink:0;}
+.pie-hole{position:absolute;inset:18px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.pie-center{font-size:12px;color:var(--muted);text-align:center;line-height:1.4;}
+.pie-legend{display:flex;flex-direction:column;gap:10px;flex:1;min-width:160px;}
+.pi-item{display:flex;align-items:center;gap:8px;font-size:14px;}
+.pi-item b{margin-left:auto;font-size:16px;}
+.pi-item.rec b{color:#34d399;} .pi-item.des b{color:#f87171;}
+
+/* ===== LAYOUT SIDEBAR ===== */
+.app-layout{display:flex;gap:22px;align-items:flex-start;}
+.sidebar{flex:0 0 210px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 12px;position:sticky;top:16px;}
+.side-logo{display:flex;align-items:center;gap:10px;padding:4px 8px 14px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.side-logo .logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;}
+.side-logo h1{font-size:16px;margin:0;color:var(--text);}
+.side-logo span{font-size:11px;color:var(--muted);}
+.side-nav{display:flex;flex-direction:column;gap:6px;}
+.side-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:left;}
+.side-item:hover{color:var(--text);background:rgba(139,92,246,.08);}
+.side-item.active{background:linear-gradient(135deg,var(--purple),var(--purple-dark));color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.35);}
+.side-bottom{margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:6px;}
+.side-bottom .side-item{font-weight:500;}
+.content{flex:1;min-width:0;}
+.app-section{animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-title{font-size:22px;font-weight:800;margin:6px 0 4px;color:var(--text);}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+@media(max-width:900px){
+  .app-layout{flex-direction:column;}
+  .sidebar{flex:1;position:static;width:100%;}
+  .side-nav{flex-direction:row;flex-wrap:wrap;}
+  .side-item{flex:1;min-width:140px;justify-content:center;}
+  .side-bottom{flex-direction:row;}
+}
+
+/* ===== METAS ===== */
+.meta-add{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.meta-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.meta-card .mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.meta-card .mc-nome{font-size:15px;font-weight:700;color:var(--text);}
+.meta-bar{height:10px;border-radius:6px;background:rgba(0,0,0,.25);overflow:hidden;margin:10px 0;}
+.meta-bar>div{height:100%;background:linear-gradient(90deg,var(--purple),#a78bfa);border-radius:6px;}
+.meta-card .mc-val{font-size:13px;color:var(--muted);}
+.meta-card .mc-val b{color:var(--purple2);}
+.meta-actions{display:flex;gap:8px;margin-top:12px;}
+
+@media(max-width:700px){
+  .app-header{flex-direction:column;align-items:stretch;}
+  .header-right{justify-content:space-between;}
+  .month-nav .month-label{min-width:110px;}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  th,td{padding:10px 12px;}
+  .table-wrap{overflow-x:auto;}
+}
+.banco-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:9px;font-weight:800;color:#fff;margin-right:6px;vertical-align:middle;flex:0 0 auto;box-shadow:0 1px 3px rgba(0,0,0,.5);letter-spacing:.2px;}
+.banco-badge.bk{width:26px;height:26px;font-size:9px;}
+.banco-logo{width:22px;height:22px;object-fit:contain;background:#fff;border-radius:50%;padding:2px;margin-right:6px;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+.bank-row .banco-logo,.bank-row .banco-badge{width:32px;height:32px;margin-right:0;padding:3px;}
+.bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:14px;}
+.bank-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.25);}
+.bank-row .bk{width:30px;height:30px;font-size:10px;}
+.bank-row .bk-name{flex:1;font-size:13px;color:var(--text);}
+.bank-row .bkamt{font-size:15px;font-weight:700;}
+.bank-row .bkamt.pos{color:#34d399;}
+.bank-row .bkamt.neg{color:#f87171;}
+.bank-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="gradient-bg"></div>
+
+<!-- ============ LOGIN / CADASTRO ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">$</div>
+    <h2>Controle Financeiro</h2>
+    <p class="login-sub">Acesse sua conta para ver suas finanças</p>
+    <div class="login-tabs">
+      <button class="ltab active" data-ltab="login">Entrar</button>
+      <button class="ltab" data-ltab="cadastro">Criar conta</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field"><label>Nome</label><input type="text" id="loginNome" placeholder="Seu nome"></div>
+      <div class="field"><label>Senha</label><div class="pass-wrap"><input type="password" id="loginSenha" placeholder="••••••"><button type="button" class="pass-toggle" onclick="togglePass('loginSenha',this)">👁</button></div></div>
+      <button class="btn btn-primary btn-block" type="button" id="btnLogin">Entrar</button>
+    </form>
+
+    <form id="cadastroForm" style="display:none">
+      <div class="field"><label>Nome</label><input type="text" id="cadNome" placeholder="Seu nome"></div>
+      <div class="field"><label>Senha</label><div class="pass-wrap"><input type="password" id="cadSenha" placeholder="Mínimo 4 caracteres"><button type="button" class="pass-toggle" onclick="togglePass('cadSenha',this)">👁</button></div></div>
+      <button class="btn btn-primary btn-block" type="button" id="btnCadastro">Criar conta</button>
+    </form>
+
+    <div class="login-divider"><span>ou continue com</span></div>
+    <div id="googleButtonHolder"></div>
+
+    <div class="login-msg" id="loginMsg"></div>
+    <p class="login-note">💾 Os dados ficam salvos neste navegador.</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app-screen" id="appScreen" style="display:none">
+<div class="wrap">
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="logo-icon">$</div>
+      <div><h1>Controle Financeiro</h1><span>Gestão Financeira</span></div>
+    </div>
+    <nav class="side-nav" id="sideNav">
+      <button class="side-item active" data-sec="painel">🧩 Painel</button>
+      <button class="side-item" data-sec="transacoes">⇅ Transações</button>
+      <button class="side-item" data-sec="bancos">🏦 Bancos</button>
+      <button class="side-item" data-sec="categorias">📁 Categorias</button>
+      <button class="side-item" data-sec="metas">🎯 Metas</button>
+    </nav>
+    <div class="side-bottom">
+      <button class="side-item" id="btnSideTheme">🎨 Cor</button>
+      <button class="side-item" id="btnSideProfile">👤 Perfil</button>
+      <button class="side-item" id="btnSideLogout">↪ Sair</button>
+    </div>
+  </aside>
+
+  <main class="content">
+
+  <div class="app-header">
+    <div class="logo">
+      <div class="logo-icon">$</div>
+      <div>
+        <h1>Controle Financeiro</h1>
+        <span>Receitas e despesas por mês</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-chip" id="userChip">👤</div>
+      <div class="month-nav">
+        <button id="prevMonth" title="Mês anterior">‹</button>
+        <span class="month-label" id="monthLabel"></span>
+        <button id="nextMonth" title="Próximo mês">›</button>
+        <select id="monthSelect" title="Mês"></select>
+        <input type="number" id="yearInput" title="Ano" min="1900" max="2100" style="width:80px">
+      </div>
+      <button class="btn btn-ghost" id="btnTheme" title="Trocar cor do site">🎨 Cor</button>
+      <button class="btn btn-ghost" id="btnProfile" title="Editar perfil">👤 Perfil</button>
+      <button class="btn btn-ghost" id="btnLogout">Sair</button>
+    </div>
+  </div>
+
+  <div class="theme-panel" id="themePanel" style="display:none">
+    <div class="theme-title">🎨 Cor do site</div>
+    <canvas id="colorWheel" width="200" height="200" class="color-wheel" title="Círculo cromático — clique numa cor"></canvas>
+    <div class="color-hint">Clique em qualquer cor do círculo</div>
+    <div class="theme-custom">
+      <label class="theme-custom-label">Escolha qualquer cor</label>
+      <div class="color-row">
+        <input type="color" id="themePick" value="#8b5cf6">
+        <span id="colorHex">#8b5cf6</span>
+      </div>
+    </div>
+    <div class="theme-title" style="margin-top:14px">Pré-definidas</div>
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+
+  <div class="profile-panel" id="profilePanel" style="display:none">
+    <div class="theme-title">👤 Editar perfil</div>
+    <div class="field"><label>Nome de usuário</label><input type="text" id="profNome" placeholder="Seu nome"></div>
+    <div class="field"><label>Senha atual (para confirmar)</label><input type="password" id="profSenhaAtual" placeholder="••••••"></div>
+    <div class="field"><label>Nova senha (opcional)</label><input type="password" id="profNovaSenha" placeholder="Deixe vazio para manter"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" id="btnProfileSave" style="flex:1">Salvar</button>
+      <button class="btn btn-ghost" id="btnProfileCancel" style="flex:1">Cancelar</button>
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px">
+      <div class="theme-title">💾 Dados (backup)</div>
+      <button class="btn btn-ghost btn-block" id="btnBackup" style="margin-bottom:8px">⬇️ Exportar backup</button>
+      <button class="btn btn-ghost btn-block" id="btnRestore">⬆️ Restaurar backup</button>
+      <input type="file" id="backupFile" accept=".json,application/json" style="display:none">
+      <p class="login-note" style="text-align:left">Exporte para guardar seu cadastro e dados num arquivo e restaurá-los em qualquer link.</p>
+    </div>
+    <div class="login-msg" id="profileMsg" style="margin-top:8px"></div>
+  </div>
+
+  <div class="settle-overlay" id="settleOverlay" style="display:none">
+    <div class="settle-modal">
+      <div class="settle-title" id="settleTitle">Marcar como pago</div>
+      <div class="settle-sub" id="settleSub"></div>
+      <div class="field">
+        <label>Forma de pagamento</label>
+        <select id="settleMetodo">
+          <option value="pix">Virtual</option>
+          <option value="dinheiro">Físico</option>
+          <option value="credito">Crédito</option>
+        </select>
+      </div>
+      <div class="field" id="settleBancoField">
+        <label>Banco (conta)</label>
+        <select id="settleBanco"></select>
+      </div>
+      <button class="btn btn-primary btn-block" id="settleTotal">💯 Valor total</button>
+      <button class="btn btn-ghost btn-block" id="settlePartial" style="margin-top:8px">⌨️ Digitar valor</button>
+      <div class="field" id="settleInputWrap" style="display:none;margin-top:12px">
+        <label id="settleInputLabel">Valor pago</label>
+        <input type="text" id="settleInput" inputmode="decimal" placeholder="R$ 0,00" autocomplete="off">
+        <button class="btn btn-primary btn-block" id="settleConfirm" style="margin-top:8px">Confirmar</button>
+      </div>
+      <div class="settle-msg" id="settleMsg"></div>
+      <button class="btn btn-ghost btn-block" id="settleCancel" style="margin-top:8px">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="settle-overlay" id="moveOverlay" style="display:none">
+    <div class="settle-modal">
+      <div class="settle-title" id="moveTitle"></div>
+      <div class="settle-sub" id="moveSub"></div>
+      <div class="field" id="movePayField" style="display:none">
+        <label>Forma de pagamento</label>
+        <select id="moveMetodo">
+          <option value="pix">Virtual</option>
+          <option value="dinheiro">Físico</option>
+          <option value="credito">Crédito</option>
+        </select>
+      </div>
+      <div class="field" id="moveBancoField" style="display:none">
+        <label>Banco (conta)</label>
+        <select id="moveBanco"></select>
+      </div>
+      <div id="moveBody"></div>
+      <button class="btn btn-ghost btn-block" id="moveCancel" style="margin-top:8px">Cancelar</button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <section id="sec-painel" class="app-section">
+  <div class="section-title">Painel</div>
+  <div class="section-sub">Acompanhe seus saldos.</div>
+  <div class="balance-panel">
+    <div class="bal-top">
+      <span class="bal-label tip" data-tip="Soma das receitas e despesas do mês mais o saldo do mês anterior">💼 Saldo total na conta</span>
+      <div class="bal-right">
+        <div class="bal-total" id="balTotal">R$ 0,00</div>
+        <div class="bal-clean tip" data-tip="Saldo total na conta + Saldo dívidas (a receber − a pagar do mês)">🎯 Saldo meta: <b id="balMeta">R$ 0,00</b></div>
+        <div class="bal-clean tip" style="margin-top:5px" data-tip="Saldo de todos os meses − tudo que você deve + tudo que vão te pagar">✨ Saldo quitado total: <b id="balLiquidadoTotal">R$ 0,00</b></div>
+        <div class="bal-clean tip" style="margin-top:5px" data-tip="Quanto você guardou nas metas (separado do saldo)">🔒 Reservado em metas: <b id="balMetas">R$ 0,00</b></div>
+        <div class="bal-clean tip" style="margin-top:5px" data-tip="Saldo total − reservado em metas (o que você pode usar)">💰 Disponível: <b id="balDisponivel">R$ 0,00</b></div>
+      </div>
+    </div>
+    <div class="bal-row">
+      <div class="bal-cell dinheiro"><span class="dot"></span> Físico <b id="balDinheiro">R$ 0,00</b></div>
+      <div class="bal-cell pix"><span class="dot"></span> Virtual <b id="balPix">R$ 0,00</b></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="card receitas">
+      <div class="label">Receitas</div>
+      <div class="value" id="sumReceitas">R$ 0,00</div>
+      <div class="sub" id="countReceitas">0 registros</div>
+    </div>
+    <div class="card despesas">
+      <div class="label">Despesas</div>
+      <div class="value" id="sumDespesas">R$ 0,00</div>
+      <div class="sub" id="countDespesas">0 registros</div>
+    </div>
+    <div class="card saldo">
+      <div class="label">Saldo do mês</div>
+      <div class="value" id="sumSaldo">R$ 0,00</div>
+      <div class="sub" id="pctSaldo"></div>
+    </div>
+  </div>
+  </section><!-- /sec-painel -->
+
+  <section id="sec-transacoes" class="app-section" style="display:none">
+  <div class="tabs">
+    <div class="tab active" data-tab="receitas">＋ Receitas</div>
+    <div class="tab" data-tab="despesas">－ Despesas</div>
+    <div class="tab" data-tab="debitos">📒 Dívidas</div>
+    <div class="tab" data-tab="extrato">📄 Extrato</div>
+  </div>
+
+  <div class="form-section" id="formSection">
+    <h3 id="formTitle">＋ Nova Receita</h3>
+    <div class="form-grid">
+      <div class="field">
+        <label>Descrição</label>
+        <input type="text" id="descricao" placeholder="Ex: Salário">
+      </div>
+      <div class="field">
+        <label>Valor (R$)</label>
+        <div class="valor-row">
+          <input type="text" id="valor" inputmode="decimal" placeholder="0,00" autocomplete="off">
+          <button type="button" class="valor-arrow" id="valorArrowBtn" title="Calcular a partir de">▾</button>
+          <select id="valorBase" title="Calcular a partir de">
+            <option value="">Digitação manual</option>
+            <option value="conta">Total da conta</option>
+            <option value="meta">Meta</option>
+            <option value="quitado">Saldo quitado total</option>
+            <option value="receitas">Saldo de receitas</option>
+            <option value="despesas">Saldo de despesas</option>
+            <option value="dividas">Dívidas</option>
+            <option value="recebertudo">Saldo se eu receber tudo</option>
+            <option value="pagartudo">Saldo se eu pagar tudo</option>
+          </select>
+          <div class="valor-options" id="valorOptions"></div>
+        </div>
+        <span class="field-hint" id="valorHint"></span>
+      </div>
+      <div class="field">
+        <label>Porcentagem (%)</label>
+        <input type="number" id="percent" placeholder="Ex: 10 (vazio = 100%)" step="any" min="0">
+      </div>
+      <div class="field">
+        <label>Categoria (livre)</label>
+        <input type="text" id="categoria" placeholder="Ex: Mercado, Salário...">
+      </div>
+      <div class="field">
+        <label>Forma de pagamento</label>
+        <select id="metodo">
+          <option value="pix">Virtual</option>
+          <option value="dinheiro">Físico</option>
+          <option value="credito">Crédito</option>
+        </select>
+      </div>
+      <div class="field" id="bancoField">
+        <label>Banco (conta)</label>
+        <select id="banco" title="De qual banco saiu / qual recebeu"></select>
+      </div>
+      <div class="field" id="parcelasField" style="display:none">
+        <label>Em quantas vezes?</label>
+        <input type="number" id="parcelas" min="1" placeholder="Digite ex: 3">
+      </div>
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="data">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost btn-fixo" id="btnFixo" title="Fixo: aparece nesta categoria em todos os meses a partir do mês atual">📌 Fixo</button>
+      <button class="btn btn-primary" id="btnAdd">Adicionar</button>
+      <button class="btn btn-ghost" id="btnAddNew" style="display:none">➕ Adicionar novo</button>
+      <button class="btn btn-ghost" id="btnCancel" style="display:none">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead><tr>
+        <th>Descrição</th><th>Categoria</th><th>Pagamento</th><th>Data</th><th>Valor</th><th style="width:90px"></th>
+      </tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="debitSection" style="display:none">
+    <div class="form-section">
+      <h3>📒 Nova Anotação de Dívida</h3>
+      <div class="form-grid">
+        <div class="field"><label>Pessoa</label><input type="text" id="debQuem" placeholder="Nome da pessoa"></div>
+        <div class="field"><label>Tipo</label><select id="debTipo"><option value="receber">🟢 A receber</option><option value="devo">🔴 A pagar</option></select></div>
+        <div class="field">
+          <label>Valor (R$)</label>
+          <div class="valor-row">
+            <input type="text" id="debValor" inputmode="decimal" placeholder="0,00" autocomplete="off">
+            <button type="button" class="valor-arrow" id="debValorArrowBtn" title="Calcular a partir de">▾</button>
+            <select id="debValorBase" title="Calcular a partir de">
+              <option value="">Digitação manual</option>
+              <option value="conta">Total da conta</option>
+              <option value="meta">Meta</option>
+              <option value="quitado">Saldo quitado total</option>
+              <option value="receitas">Saldo de receitas</option>
+              <option value="despesas">Saldo de despesas</option>
+              <option value="dividas">Dívidas</option>
+              <option value="recebertudo">Saldo se eu receber tudo</option>
+              <option value="pagartudo">Saldo se eu pagar tudo</option>
+            </select>
+            <div class="valor-options" id="debValorOptions"></div>
+          </div>
+          <span class="field-hint" id="debValorHint"></span>
+        </div>
+        <div class="field">
+          <label>Porcentagem (%)</label>
+          <input type="number" id="debPercent" placeholder="Ex: 10 (vazio = 100%)" step="any" min="0">
+        </div>
+        <div class="field"><label>Observação</label><input type="text" id="debObs" placeholder="Opcional"></div>
+        <div class="field">
+          <label>Pagamento</label>
+          <select id="debForma">
+            <option value="avista">À vista</option>
+            <option value="parcelado">Parcelado</option>
+          </select>
+        </div>
+        <div id="debParceladoFields" style="display:none">
+          <div class="field"><label>Parcelas</label><input type="number" id="debParcelas" min="1" placeholder="Digite ex: 3"></div>
+          <div class="field"><label>Intervalo entre as parcelas</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="debPeriodoNum" min="1" value="1" style="flex:1;min-width:0" placeholder="1">
+              <select id="debPeriodoUnidade" style="width:110px">
+                <option value="mes">Meses</option>
+                <option value="ano">Anos</option>
+              </select>
+            </div>
+            <small style="color:var(--muted);display:block;margin-top:4px">1 = meses consecutivos (todo mês)</small>
+          </div>
+        </div>
+        <div class="field">
+          <label>Começar a receber/pagar</label>
+          <input type="date" id="debInicio">
+        </div>
+        <div class="field">
+          <label>Vence até (data limite)</label>
+          <input type="date" id="debVence">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost btn-fixo" id="btnDebFixo" title="Fixo: repete todo mês a partir do início (ex: aluguel, mensalidade)">📌 Fixo</button>
+        <button class="btn btn-primary" id="btnDebAdd">Adicionar</button>
+        <button class="btn btn-ghost" id="btnDebAddNew" style="display:none">➕ Adicionar nova Dívida</button>
+        <button class="btn btn-ghost" id="btnDebCancel" style="display:none">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="card receitas">
+        <div class="label">🟢 A receber (mês)</div>
+        <div class="value" id="debReceber">R$ 0,00</div>
+        <div class="sub" id="debCountReceber">0 anotações</div>
+      </div>
+      <div class="card receitas">
+        <div class="label">Saldo se eu receber tudo</div>
+        <div class="value" id="debSeReceber">R$ 0,00</div>
+        <div class="sub">Saldo do mês + parcelas que vão te pagar</div>
+      </div>
+      <div class="card despesas">
+        <div class="label">🔴 A pagar (mês)</div>
+        <div class="value" id="debDevo">R$ 0,00</div>
+        <div class="sub" id="debCountDevo">0 anotações</div>
+      </div>
+      <div class="card saldo">
+        <div class="label">Saldo se eu pagar tudo que devo</div>
+        <div class="value" id="debSePagar">R$ 0,00</div>
+        <div class="sub">Saldo do mês − parcelas que você paga</div>
+      </div>
+      <div class="card saldo">
+        <div class="label tip" data-tip="A receber − A pagar do mês (o que vão te pagar menos o que você paga)">Saldo dívidas</div>
+        <div class="value" id="debSaldoDividas">R$ 0,00</div>
+        <div class="sub">A receber − A pagar (mês)</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pessoa</th><th>Tipo</th><th>Valor</th><th>Observação</th><th style="width:90px"></th></tr></thead>
+        <tbody id="debTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="extratoSection" style="display:none">
+    <div class="card" style="margin-bottom:16px">
+      <h3 style="margin-bottom:16px" id="extratoTitle">📄 Extrato</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Pagamento</th><th>Valor</th></tr></thead>
+          <tbody id="extratoBody"></tbody>
+        </table>
+      </div>
+      <div class="ov-grid" style="margin-top:16px">
+        <div class="ov-item"><span class="ov-label">Total Receitas</span><span class="ov-val rec" id="extReceitas">R$ 0,00</span></div>
+        <div class="ov-item"><span class="ov-label">Total Despesas</span><span class="ov-val des" id="extDespesas">R$ 0,00</span></div>
+        <div class="ov-item"><span class="ov-label">Saldo do mês</span><span class="ov-val sal" id="extSaldo">R$ 0,00</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:16px">💰 Dívidas deste mês (me devem e eu devo)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pessoa</th><th>Tipo</th><th>Parcela</th><th>Valor</th></tr></thead>
+          <tbody id="extratoDebBody"></tbody>
+        </table>
+      </div>
+      <div class="ov-grid" style="margin-top:16px">
+        <div class="ov-item"><span class="ov-label">A receber (mês)</span><span class="ov-val rec" id="extRecReceber">R$ 0,00</span></div>
+        <div class="ov-item"><span class="ov-label">A pagar (mês)</span><span class="ov-val des" id="extDebDevo">R$ 0,00</span></div>
+      </div>
+    </div>
+  </div>
+  </section><!-- /sec-transacoes -->
+
+  <section id="sec-bancos" class="app-section" style="display:none">
+    <div class="section-title">🏦 Bancos</div>
+    <div class="section-sub">Meus bancos e o saldo de cada um.</div>
+    <div class="card"><h3 style="margin-bottom:16px">Saldo por banco</h3><div id="bankBreakdown"></div></div>
+  </section>
+
+  <section id="sec-categorias" class="app-section" style="display:none">
+    <div class="section-title">📁 Categorias</div>
+    <div class="section-sub">Extrato do mês por categoria.</div>
+    <div class="card" id="resumoOverview"></div>
+    <div class="card"><h3 style="margin-bottom:16px">Despesas por categoria</h3><div id="expenseBreakdown"></div></div>
+    <div class="card"><h3 style="margin-bottom:16px">Receitas por categoria</h3><div id="incomeBreakdown"></div></div>
+  </section>
+
+  <section id="sec-metas" class="app-section" style="display:none">
+    <div class="section-title">🎯 Metas</div>
+    <div class="section-sub">Adicione metas e separe dinheiro para cada uma.</div>
+    <div class="meta-add">
+      <h3>🎯 Nova meta</h3>
+      <div class="form-grid">
+        <div class="field"><label>Nome da meta</label><input type="text" id="metaNome" placeholder="Ex: Viagem, Reserva..."></div>
+        <div class="field"><label>Valor alvo (R$)</label><input type="text" id="metaAlvo" inputmode="decimal" placeholder="0,00"></div>
+        <div class="field"><label>Quanto separar (R$)</label><input type="text" id="metaValor" inputmode="decimal" placeholder="0,00"></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" id="btnMetaAdd">➕ Adicionar à meta</button></div>
+    </div>
+    <div class="meta-grid" id="metasGrid"></div>
+  </section>
+
+  </main>
+  </div><!-- /app-layout -->
+
+</div>
+</div>
+
+<script async src="https://accounts.google.com/gsi/client"></script>
+<script>
+// ====== AUTENTICAÇÃO ======
+const USERS_KEY = 'financas_usuarios_v1';
+const SESS_KEY = 'financas_sessao_v1';
+let currentUser = null;
+
+function loadUsers(){
+  try{ return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }catch(e){ return []; }
+}
+function saveUsers(users){ localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+function togglePass(id, btn){
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+function hashStr(s){
+  let h1=0xdeadbeef, h2=0x41c6ce57;
+  for(let i=0;i<s.length;i++){
+    const ch=s.charCodeAt(i);
+    h1=Math.imul(h1^ch,2654435761);
+    h2=Math.imul(h2^ch,1597334677);
+  }
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+  h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (h2>>>0).toString(16)+(h1>>>0).toString(16);
+}
+function showLoginMsg(msg, ok){
+  const el = document.getElementById('loginMsg');
+  el.textContent = msg || '';
+  el.className = 'login-msg' + (ok?' ok':'');
+}
+function showLoginScreen(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appScreen').style.display='none';
+}
+function showAppScreen(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+}
+function enterApp(user){
+  currentUser = user;
+  localStorage.setItem(SESS_KEY, user.id);
+  localStorage.setItem('financas_ultimo_nome', user.nome);
+  data = load();
+  document.getElementById('userChip').textContent = '👤 ' + user.nome;
+  showAppScreen();
+  render();
+}
+function doLogin(){
+  const nome = document.getElementById('loginNome').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+  const u = loadUsers().find(x=>x.nome.toLowerCase()===nome.toLowerCase());
+  if(!u || u.senha!==hashStr(senha)){ showLoginMsg('Nome ou senha incorretos.'); return; }
+  enterApp(u);
+}
+function doCadastro(){
+  const nome = document.getElementById('cadNome').value.trim();
+  const senha = document.getElementById('cadSenha').value;
+  if(!nome || !senha){ showLoginMsg('Preencha todos os campos.'); return; }
+  if(senha.length<4){ showLoginMsg('A senha deve ter pelo menos 4 caracteres.'); return; }
+  const users = loadUsers();
+  if(users.find(x=>x.nome.toLowerCase()===nome.toLowerCase())){ showLoginMsg('Este nome já está cadastrado.'); return; }
+  const user = { id:'u'+Date.now(), nome, senha:hashStr(senha), criadoEm:new Date().toISOString() };
+  users.push(user);
+  saveUsers(users);
+  enterApp(user);
+}
+// ====== LOGIN COM GOOGLE ======
+const GOOGLE_CLIENT_ID = 'PREENCHA_SEU_CLIENT_ID'; // Cole aqui o Client ID do Google
+function renderGoogleButton(){
+  const holder = document.getElementById('googleButtonHolder');
+  if(!holder) return;
+  if(!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID==='PREENCHA_SEU_CLIENT_ID'){
+    holder.innerHTML = '<button class="btn btn-ghost btn-block" type="button" onclick="showLoginMsg(&quot;Para entrar com o Google, configure o Client ID.&quot;, true)">🔵 Entrar com Google</button>';
+    return;
+  }
+  if(typeof google==='undefined' || !google.accounts){
+    holder.innerHTML = '<p class="login-note">Carregando Google…</p>';
+    return;
+  }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: loginGoogle });
+  google.accounts.id.renderButton(holder, { theme:'outline', size:'large', width:'100%', text:'continue_with' });
+}
+function loginGoogle(resp){
+  try{
+    const parts = resp.credential.split('.');
+    const jwt = JSON.parse(decodeURIComponent(escape(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')))));
+    const email = jwt.email;
+    const nome = jwt.name || email.split('@')[0];
+    const users = loadUsers();
+    let u = users.find(x=>x.google===email);
+    if(!u){
+      let n = nome, k=2;
+      while(users.some(x=>x.nome.toLowerCase()===n.toLowerCase())){ n = nome + ' ' + k++; }
+      u = { id:'g'+Date.now(), nome:n, senha:'', google:email, criadoEm:new Date().toISOString() };
+      users.push(u);
+      saveUsers(users);
+    }
+    enterApp(u);
+  }catch(e){ showLoginMsg('Falha ao entrar com Google. Tente novamente.'); }
+}
+function prefillLoginNome(){
+  const n = localStorage.getItem('financas_ultimo_nome');
+  if(n){ const el=document.getElementById('loginNome'); if(el) el.value = n; }
+}
+document.getElementById('btnLogin').onclick = doLogin;
+document.getElementById('btnCadastro').onclick = doCadastro;
+document.getElementById('btnLogout').onclick = ()=>{
+  localStorage.removeItem(SESS_KEY);
+  currentUser = null;
+  showLoginScreen();
+};
+document.querySelectorAll('.ltab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.ltab').forEach(x=>x.classList.toggle('active', x===t));
+    const isCad = t.dataset.ltab==='cadastro';
+    document.getElementById('loginForm').style.display = isCad?'none':'block';
+    document.getElementById('cadastroForm').style.display = isCad?'block':'none';
+    showLoginMsg('');
+  };
+});
+// permitir Enter nos campos de login/cadastro
+document.getElementById('loginSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('cadSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') doCadastro(); });
+
+// ====== ESTADO ======
+let currentMonth = new Date();
+// ====== BANCOS ======
+const BANCOS = [
+  {id:'nubank', nome:'Nubank', cor:'#820ad1', sigla:'NB'},
+  {id:'itau', nome:'Itaú', cor:'#ec7000', sigla:'IT'},
+  {id:'bradesco', nome:'Bradesco', cor:'#cc092f', sigla:'BR'},
+  {id:'bb', nome:'Banco do Brasil', cor:'#f6a905', sigla:'BB'},
+  {id:'caixa', nome:'Caixa Econômica', cor:'#0b7b9c', sigla:'CX'},
+  {id:'santander', nome:'Santander', cor:'#ec0000', sigla:'SA'},
+  {id:'inter', nome:'Banco Inter', cor:'#ff7300', sigla:'IN'},
+  {id:'c6', nome:'C6 Bank', cor:'#111111', sigla:'C6'},
+  {id:'sicoob', nome:'Sicoob', cor:'#3c9c35', sigla:'SC'},
+  {id:'sicredi', nome:'Sicredi', cor:'#e3b200', sigla:'SR'},
+  {id:'safra', nome:'Banco Safra', cor:'#004d99', sigla:'SF'},
+  {id:'bmg', nome:'Banco BMG', cor:'#0062a8', sigla:'BM'},
+  {id:'pan', nome:'Banco Pan', cor:'#ffce00', sigla:'PN'},
+  {id:'daycoval', nome:'Daycoval', cor:'#ffb300', sigla:'DC'},
+  {id:'original', nome:'Banco Original', cor:'#f8c100', sigla:'OR'},
+  {id:'banrisul', nome:'Banrisul', cor:'#00823e', sigla:'BRs'},
+  {id:'mercadopago', nome:'Mercado Pago', cor:'#009ee3', sigla:'MP'},
+  {id:'pagbank', nome:'PagBank', cor:'#ff7a00', sigla:'PB'},
+  {id:'picpay', nome:'PicPay', cor:'#21c25e', sigla:'PP'},
+  {id:'neon', nome:'Neon', cor:'#1f3a5f', sigla:'NE'},
+  {id:'btg', nome:'BTG Pactual', cor:'#f0712c', sigla:'BT'},
+  {id:'xp', nome:'XP Investimentos', cor:'#232323', sigla:'XP'},
+  {id:'modal', nome:'Banco Modal', cor:'#2430ff', sigla:'MD'},
+  {id:'outro', nome:'Outro', cor:'#64748b', sigla:'?'}
+];
+const BANK_LOGOS = {
+  'nubank':'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgdmlld0JveD0iMCAwIDI2My44NDIwNyAxNDUuNTY3MzciCiAgIHZlcnNpb249IjEuMSIKICAgaWQ9InN2ZzYiCiAgIHNvZGlwb2RpOmRvY25hbWU9Ik51YmFuayBsb2dvIDIwMjEuc3ZnIgogICB3aWR0aD0iMjYzLjg0MjA3IgogICBoZWlnaHQ9IjE0NS41NjczNyIKICAgaW5rc2NhcGU6ZXhwb3J0LWZpbGVuYW1lPSJDOlxVc2Vyc1xhbGV4XHNpdGVzXG51YmFuay1sb2dvLTAucG5nIgogICBpbmtzY2FwZTpleHBvcnQteGRwaT0iNTYxLjczNzEyIgogICBpbmtzY2FwZTpleHBvcnQteWRwaT0iNTYxLjczNzEyIgogICBpbmtzY2FwZTp2ZXJzaW9uPSIxLjAuMiAoZTg2Yzg3MDg3OSwgMjAyMS0wMS0xNSwgY3VzdG9tKSI+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhMTIiPgogICAgPHJkZjpSREY+CiAgICAgIDxjYzpXb3JrCiAgICAgICAgIHJkZjphYm91dD0iIj4KICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD4KICAgICAgICA8ZGM6dHlwZQogICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+CiAgICAgICAgPGRjOnRpdGxlPjwvZGM6dGl0bGU+CiAgICAgIDwvY2M6V29yaz4KICAgIDwvcmRmOlJERj4KICA8L21ldGFkYXRhPgogIDxkZWZzCiAgICAgaWQ9ImRlZnMxMCIgLz4KICA8c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IgogICAgIGJvcmRlcm9wYWNpdHk9IjEiCiAgICAgb2JqZWN0dG9sZXJhbmNlPSIxMCIKICAgICBncmlkdG9sZXJhbmNlPSIxMCIKICAgICBndWlkZXRvbGVyYW5jZT0iMTAiCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAiCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjEzNjYiCiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iNzA1IgogICAgIGlkPSJuYW1lZHZpZXc4IgogICAgIHNob3dncmlkPSJmYWxzZSIKICAgICBpbmtzY2FwZTp6b29tPSIwLjIxNDU5NzU5IgogICAgIGlua3NjYXBlOmN4PSIyMDguODkzNiIKICAgICBpbmtzY2FwZTpjeT0iMTI4LjUxMzE1IgogICAgIGlua3NjYXBlOndpbmRvdy14PSItOCIKICAgICBpbmtzY2FwZTp3aW5kb3cteT0iLTgiCiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMSIKICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJzdmc2IgogICAgIGlua3NjYXBlOmRvY3VtZW50LXJvdGF0aW9uPSIwIgogICAgIGZpdC1tYXJnaW4tdG9wPSIwIgogICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIKICAgICBmaXQtbWFyZ2luLXJpZ2h0PSIwIgogICAgIGZpdC1tYXJnaW4tYm90dG9tPSIwIiAvPgogIDxwYXRoCiAgICAgZD0iTSA0Ny42Mjc1OTgsMTMuODg1NjUgQyA1NS45NzA5MTgsNS4xMjAyMiA2Ny4wMzgxODgsMCA4MC4wNDAxNTgsMCBjIDI1LjMyOTMwMiwwIDQyLjEyMjg2MiwxOC40OTM2MSA0NS4zMzU4MTIsNDYuMTk4MzEgMS4wNDE3Myw4Ljk5NzAyIDEuMDMyMTcsMjEuNjgxNDYgMS4wMjE3MiwzNi4zNzMzOCAtMC4wMDIsMS41MDY2MiAtMC4wMDIsMy4wMzQ2NCAtMC4wMDIsNC41ODE3NSB2IDU1LjAzODM5IEggOTEuNTYzMDY4IHYgLTQwLjcwODEyIGMgMCwwIC0wLjA3MSwtMzQuODQwMzYgLTAuMjgzODYsLTQxLjM1MTggLTAuOTM0ODIsLTI4LjM1OTQ1IC0xNy43MjM4MywtNDYuMTc5MTEgLTQzLjY1NDk3LC00Ni4xOTgyNiAtNy44MjM2LDguMjY1NzcgLTEyLjAxNTU5LDE4LjM3MjEgLTEyLjYzMzgxLDMzLjgyNDk4IC0wLjA4NSwyLjE1NTMxIC0wLjA2MzYsOS43OTQ5MSAtMC4wMzU0LDE5Ljg2MzY3IDAuMDE0Niw1LjIxNjggMC4wMzEsMTEuMDg1OTIgMC4wMzU0LDE3LjE4MjA0IDAuMDI1OCwyNi41MzM4OCAwLDU3LjM5MzQxIDAsNTcuMzkzNDEgSCAwLjE1NzcwMTQ1IFYgNzkuNTQ4NDIgYyAwLC0yLjE0NjY4IC0wLjAzOTE1LC00LjMxMTU1IC0wLjA3ODM5LC02LjQ4NTA2IC0wLjA3ODk5OTk5NzEsLTQuMzcyMDUgLTAuMTU4NjI2LC04Ljc3Nzc1IDAuMDc4MzksLTEzLjE0MDI1IEMgMC41NTEyNTI0NSw1Mi42NTA2MiAxLjgwOTMyMjUsNDUuNTAxNCA1LjIwMjg2ODUsMzguODU5OTUgMTIuOTcwNjU4LDIzLjY0NDgxIDI4Ljg4Njg4OCwxMy44NDgzNSA0NS44NTQ4NDgsMTMuODQ4MzUgYyAwLjU5Mjc0LDAgMS4xODU5MywwLjAxMzcgMS43NzI3NSwwLjAzNjQgeiIKICAgICBjbGFzcz0iUGF0aC14cnRrcGQtMCBlcWZZaVIiCiAgICAgaWQ9InBhdGgyIgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgc3R5bGU9ImZpbGw6IzgyMGFkMTtmaWxsLW9wYWNpdHk6MTtzdHJva2Utd2lkdGg6NC41NDkiCiAgICAgaW5rc2NhcGU6ZXhwb3J0LWZpbGVuYW1lPSJDOlxVc2Vyc1xhbGV4XHNpdGVzXG51YmFuay1sb2dvLTUucG5nIgogICAgIGlua3NjYXBlOmV4cG9ydC14ZHBpPSIxMzIuNzY1MzgiCiAgICAgaW5rc2NhcGU6ZXhwb3J0LXlkcGk9IjEzMi43NjUzOCIgLz4KICA8cGF0aAogICAgIGQ9Im0gMjYzLjY4NDMzLDg1LjY0NDk5IGMgMC4yMzcsLTQuMzYyNDkgMC4xNTczOSwtOC43Njg2NiAwLjA3ODcsLTEzLjE0MDI1IC0wLjAzOTYsLTIuMTczNTEgLTAuMDc4NywtNC4zMzgzOCAtMC4wNzg3LC02LjQ4NTA1IFYgMy4zNzAyMiBoIC0zNC44MzIxOCBjIDAsMCAtMC4wMjYsMzAuODU5NTMgMCw1Ny4zOTMwOSAwLjAwNCw2LjA5NjEyIDAuMDIwNSwxMS45NjQ3OSAwLjAzNSwxNy4xODE1OSAwLjAyODIsMTAuMDY5MjEgMC4wNDk2LDE3LjcwODgxIC0wLjAzNSwxOS44NjQxMyAtMC42MTgyMSwxNS40NTM0MiAtNC44MTA1NiwyNS41NTk0OCAtMTIuNjMzOTQsMzMuODI1NDggLTI1LjkzMDY5LC0wLjAxODIgLTQyLjcxOTIzLC0xNy44MzkzOCAtNDMuNjU0NTEsLTQ2LjE5ODMyIC0wLjIxMjksLTYuNTExNDQgLTAuMzAyOTcsLTIyLjY2OTk1IC0wLjMwMjk3LC00MS4zODQ1MSBWIDMuMzQzNjEgbCAtMzQuODA2NjksMC4wMzE4IHYgNTUuMDM4NTIgYyAwLDEuNTQ3MTIgLTAuMDAyLDMuMDc0NjggLTAuMDAyLDQuNTgxNzYgLTAuMDExLDE0LjY5MTkxIC0wLjAyLDI3LjM3NTkgMS4wMjE3LDM2LjM3MzM4IDMuMjA2MTUsMjcuNzA0NzkgMTkuOTk5Nyw0Ni4xOTgzIDQ1LjMyOSw0Ni4xOTgzIDEzLjAwMjQyLDAgMjQuMDY5NjksLTUuMTIwMzUgMzIuNDEzMDEsLTEzLjg4NTgyIDAuNTg2MzcsMC4wMjI3IDEuMTc5MTEsMC4wMzY0IDEuNzcxODQsMC4wMzY0IDE2Ljk2Nzc4LDAgMzIuODg0MjksLTkuNzk2MjggNDAuNjUyMTcsLTI1LjAxMTMzIDMuMzkzNTUsLTYuNjQyIDQuNjUxMzUsLTEzLjc5MDc2IDUuMDQ0ODQsLTIxLjA2MzI1IHoiCiAgICAgY2xhc3M9IlBhdGgteHJ0a3BkLTAgZXFmWWlSIgogICAgIGlkPSJwYXRoNCIKICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgIHN0eWxlPSJmaWxsOiM4MjBhZDE7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjQuNTQ5IgogICAgIGlua3NjYXBlOmV4cG9ydC1maWxlbmFtZT0iQzpcVXNlcnNcYWxleFxzaXRlc1xudWJhbmstbG9nby01LnBuZyIKICAgICBpbmtzY2FwZTpleHBvcnQteGRwaT0iMTMyLjc2NTM4IgogICAgIGlua3NjYXBlOmV4cG9ydC15ZHBpPSIxMzIuNzY1MzgiIC8+CiAgPHBhdGgKICAgICBkPSJtIDExOC41ODczMSw3OTQuNjAwOTMgYyAxNC4xNTg0NiwtMTQuOTQ0NjQgMzIuOTM5NDIsLTIzLjY3NDM1IDU1LjAwMzc4LC0yMy42NzQzNSA0Mi45ODMzMSwwIDcxLjQ4MTY1LDMxLjUzMDY1IDc2LjkzNDAxLDc4Ljc2NTY1IDEuNzY3NzcsMTUuMzM5NSAxLjc1MTYsMzYuOTY1OCAxLjczMzg5LDYyLjAxNDcgMCwyLjU2ODggMCw1LjE3MzkgMCw3LjgxMTcgdiA5My44Mzc0NyBoIC01OS4xMTA0NCB2IC02OS40MDUxNyBjIDAsMCAtMC4xMjA1NSwtNTkuNDAwOSAtMC40ODE4NiwtNzAuNTAyNiAtMS41ODYxOCwtNDguMzUxNCAtMzAuMDc2NzgsLTc4LjczMyAtNzQuMDgxNjksLTc4Ljc2NTYgLTEzLjI3NjQyLDE0LjA5MjcgLTIwLjM5MDM3MiwzMS4zMjM0IC0yMS40Mzk0MDIsNTcuNjY5OCAtMC4xNDQxMiwzLjY3NDcgLTAuMTA3OTEsMTYuNjk5OCAtMC4wNjA2LDMzLjg2NjUgMC4wMjQ4LDguODk0NCAwLjA1MzMsMTguOTAwOSAwLjA2MDYsMjkuMjk0NSAwLjA0NSw0NS4yMzg5IDAsOTcuODUyNjcgMCw5Ny44NTI2NyBIIDM4LjAzNTA2OCBWIDkwNi41NTI0MyBjIDAsLTMuNjU5OSAtMC4wNjcsLTcuMzUwOSAtMC4xMzMsLTExLjA1NjcgLTAuMTMzOTMsLTcuNDU0MSAtMC4yNjkwMywtMTQuOTY1NiAwLjEzMywtMjIuNDAzNCAwLjY2ODAzLC0xMi4zOTkyIDIuODAyOTMsLTI0LjU4ODMgOC41NjE4LC0zNS45MTE1IDEzLjE4MTYzLC0yNS45NDExIDQwLjE5MTM0LC00Mi42NDM1IDY4Ljk4NTcyMiwtNDIuNjQzNSAxLjAwNTc3LDAgMi4wMTI0NCwwLjAyMyAzLjAwODIxLDAuMDYyIHoiCiAgICAgY2xhc3M9IlBhdGgteHJ0a3BkLTAgZXFmWWlSIgogICAgIGlkPSJwYXRoMi02IgogICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgc3R5bGU9ImZpbGw6I2ZmZmZmZjtzdHJva2Utd2lkdGg6Ny43Mzc2OCIKICAgICBpbmtzY2FwZTpleHBvcnQtZmlsZW5hbWU9IkM6XFVzZXJzXGFsZXhcc2l0ZXNcbnViYW5rLWxvZ28tNC5wbmciCiAgICAgaW5rc2NhcGU6ZXhwb3J0LXhkcGk9IjkyLjYxODA5NSIKICAgICBpbmtzY2FwZTpleHBvcnQteWRwaT0iOTIuNjE4MDk1IiAvPgogIDxwYXRoCiAgICAgZD0ibSA0ODUuMjMyMTcsOTE2Ljk0NjgzIGMgMC40MDIyMSwtNy40Mzc5IDAuMjY3MTQsLTE0Ljk1MDEgMC4xMzM2LC0yMi40MDM1IC0wLjA2NzIsLTMuNzA1NyAtMC4xMzM2LC03LjM5NjcgLTAuMTMzNiwtMTEuMDU2NyB2IC0xMDYuODE0IGggLTU5LjEwOTYyIGMgMCwwIC0wLjA0NDMsNTIuNjEzOSAwLDk3Ljg1MjIgMC4wMSwxMC4zOTM2IDAuMDM0NiwyMC4zOTkzIDAuMDU5MywyOS4yOTM3IDAuMDQ3OCwxNy4xNjc1IDAuMDg0MSwzMC4xOTI2IC0wLjA1OTMsMzMuODY3MyAtMS4wNDkxMSwyNi4zNDczIC04LjE2MzQzLDQzLjU3NzYgLTIxLjQzOTU5LDU3LjY3MDcgLTQ0LjAwMzk4LC0wLjAzMSAtNzIuNDkzODUsLTMwLjQxNTMgLTc0LjA4MTA1LC03OC43NjU3IC0wLjM2MTI1LC0xMS4xMDE3IC0wLjUxNDE4LC0zOC42NTExIC0wLjUxNDE4LC03MC41NTg0IHYgLTY5LjQwNTE2IGwgLTU5LjA2NjM1LDAuMDU0MSB2IDkzLjgzNzg2IGMgMCwyLjYzNzcgMCw1LjI0MjEgMCw3LjgxMTYgLTAuMDE5MiwyNS4wNDkgLTAuMDMzLDQ2LjY3NDUgMS43MzM4Nyw2Mi4wMTQ3IDUuNDQwNzEsNDcuMjM1MiAzMy45MzkwNSw3OC43NjU2NyA3Ni45MjI1NSw3OC43NjU2NyAyMi4wNjUwMSwwIDQwLjg0NTg3LC04LjcyOTkgNTUuMDA0MzYsLTIzLjY3NDU3IDAuOTk1MDgsMC4wMzkgMi4wMDA5NCwwLjA2MiAzLjAwNjc5LDAuMDYyIDI4Ljc5NDA4LDAgNTUuODA0MTIsLTE2LjcwMjEgNjguOTg2MDUsLTQyLjY0MyA1Ljc1ODg5LC0xMS4zMjQzIDcuODkzMjgsLTIzLjUxMjUgOC41NjEwNSwtMzUuOTExNyB6IgogICAgIGNsYXNzPSJQYXRoLXhydGtwZC0wIGVxZllpUiIKICAgICBpZD0icGF0aDQtNSIKICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgIHN0eWxlPSJmaWxsOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjcuNzM3NjgiCiAgICAgaW5rc2NhcGU6ZXhwb3J0LWZpbGVuYW1lPSJDOlxVc2Vyc1xhbGV4XHNpdGVzXG51YmFuay1sb2dvLTQucG5nIgogICAgIGlua3NjYXBlOmV4cG9ydC14ZHBpPSI5Mi42MTgwOTUiCiAgICAgaW5rc2NhcGU6ZXhwb3J0LXlkcGk9IjkyLjYxODA5NSIgLz4KPC9zdmc+Cg==',
+  'itau':'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyOTkuOTk5OTkgMzAzLjc1MDQzIiB3aWR0aD0iODQuNjY3bW0iIHZlcnNpb249IjEuMSIgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIgaGVpZ2h0PSI4NS43MjVtbSIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIj4KIDxkZWZzPgogIDxjbGlwUGF0aCBpZD0iYSIgY2xpcFBhdGhVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICA8cGF0aCBkPSJtMCAwaDMzOS45OHYzNDBoLTMzOS45OHYtMzQweiIvPgogIDwvY2xpcFBhdGg+CiA8L2RlZnM+CiA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTk2LjA0IC00ODEuNDgpIj4KICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCg0LjE3MDcgMCAwIC00LjIxOTMgMTk1Ljc0IDc4NS4yNykiPgogICA8ZyB0cmFuc2Zvcm09InNjYWxlKC4yMTE3OCAuMjExNzcpIj4KICAgIDxnIGNsaXAtcGF0aD0idXJsKCNhKSI+CiAgICAgPHBhdGggZD0ibTU3LjAzMiAzNDAuMDVoMjI2LjYzbDIuOTQtMC4wNiAyLjg2LTAuMjQgMi44NS0wLjM2IDIuNzktMC40OSAyLjc0LTAuNjQgMi43LTAuNzYgMi42My0wLjg5IDIuNTctMS4wMiAyLjUxLTEuMTMgMi40NC0xLjI1IDIuMzgtMS4zOCAyLjMtMS40NyAyLjIxLTEuNTcgMi4xNC0xLjcgMi4wNy0xLjc5IDEuOTUtMS44NyAxLjg5LTEuOTcgMS43Ny0yLjA0IDEuNy0yLjE1IDEuNTctMi4yMyAxLjQ2LTIuMyAxLjM2LTIuMzggMS4yNi0yLjQ0IDEuMTUtMi41MSAwLjk5LTIuNTcgMC45LTIuNjMgMC43Ni0yLjcgMC42NC0yLjc0IDAuNDktMi43OSAwLjM2LTIuODIgMC4yMy0yLjg5IDAuMDctMi45MnYtMjI2LjY3bC0wLjA3LTIuOTExLTAuMjMtMi44NjktMC4zNi0yLjg0OC0wLjQ5LTIuNzgzLTAuNjQtMi43NDItMC43Ni0yLjY5OC0wLjktMi42MTQtMC45OS0yLjU3MS0xLjE1LTIuNTI5LTEuMjYtMi40MjMtMS4zNi0yLjM4LTEuNDYtMi4yOTUtMS41Ny0yLjIzMS0xLjctMi4xMjUtMS43Ny0yLjA2MS0xLjg5LTEuOTc2LTEuOTUtMS44Ny0yLjA3LTEuNzg1LTIuMTQtMS42NzktMi4yMS0xLjU3MjYtMi4zLTEuNDY2Mi0yLjM4LTEuMzYtMi40NC0xLjI1MzctMi41MS0xLjE0NzYtMi41Ny0wLjk5ODctMi42My0wLjg5MjUtMi43LTAuNzY1LTIuNzQtMC42Mzc1LTIuNzktMC40ODg3Ni0yLjg1LTAuMzYxMjQtMi44Ni0wLjIzMzc3LTIuOTQtMC4wNjM3NDdoLTIyNi42M2wtMi45MzMgMC4wNjM3NDctMi44NjggMC4yMzM3Ny0yLjg0OCAwLjM2MTI0LTIuNzg0IDAuNDg4NzYtMi43NjIgMC42Mzc1LTIuNjc4IDAuNzY1LTIuNjM1IDAuODkyNS0yLjU3MSAwLjk5ODctMi41MjkgMS4xNDc2LTIuNDQzIDEuMjUzNy0yLjM1OSAxLjM2LTIuMzE2IDEuNDY2Mi0yLjIxIDEuNTcyNi0yLjE0NyAxLjY3OS0yLjA2MSAxLjc4NS0xLjk1NSAxLjg3LTEuODkxIDEuOTc2LTEuNzY0IDIuMDYxLTEuNjc5IDIuMTI1LTEuNTkzIDIuMjMxLTEuNDY2NSAyLjI5NS0xLjM2IDIuMzgtMS4yNTM4IDIuNDIzLTEuMTQ3NSAyLjUyOS0wLjk5ODcgMi41NzEtMC44OTI1IDIuNjE0LTAuNzY1IDIuNjk4LTAuNjM3NSAyLjc0Mi0wLjQ4ODc3IDIuNzgzLTAuMzYxMjUgMi44NDgtMC4yMzM3NSAyLjg2OS0wLjA2Mzc1IDIuOTExdjIyNi42N2wwLjA2Mzc1IDIuOTIgMC4yMzM3NSAyLjg5IDAuMzYxMjUgMi44MiAwLjQ4ODc3IDIuNzkgMC42Mzc1IDIuNzQgMC43NjUgMi43IDAuODkyNSAyLjYzIDAuOTk4NyAyLjU3IDEuMTQ3NSAyLjUxIDEuMjUzOCAyLjQ0IDEuMzYgMi4zOCAxLjQ2NjUgMi4zIDEuNTkzIDIuMjMgMS42NzkgMi4xNSAxLjc2NCAyLjA0IDEuODkxIDEuOTcgMS45NTUgMS44NyAyLjA2MSAxLjc5IDIuMTQ3IDEuNyAyLjIxIDEuNTcgMi4zMTYgMS40NyAyLjM1OSAxLjM4IDIuNDQzIDEuMjUgMi41MjkgMS4xMyAyLjU3MSAxLjAyIDIuNjM1IDAuODkgMi42NzggMC43NiAyLjc2MiAwLjY0IDIuNzg0IDAuNDkgMi44NDggMC4zNiAyLjg2OCAwLjI0IDIuOTMzIDAuMDZ6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxYTU0OTMiLz4KICAgICA8cGF0aCBkPSJtMjguNjYzIDU2LjcyM2gyNi40MzV2MTEzLjM1aC0yNi40MzV2LTExMy4zNXoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0iI2ZmZjIxMiIvPgogICAgIDxwYXRoIGQ9Im0xNzMuNTUgMTQ0LjE1aC0xLjUxbC0xLjQ5LTAuMDUtMS40Ny0wLjA2LTEuNDItMC4wOS0xLjQtMC4wOC0xLjM4LTAuMTMtMS4zNi0wLjE1LTEuMzQtMC4xNS0xLjMtMC4xOS0xLjI3LTAuMTktMS4yNi0wLjIxLTEuMjMtMC4yMy0xLjE5LTAuMjQtMS4xNy0wLjI1LTEuMTUtMC4yOC0xLjEyLTAuMjgtMS4wOS0wLjI5LTEuMDYtMC4zLTEuMDItMC4zMi0xLTAuMzItMC45OC0wLjMyLTAuOTMtMC4zNC0wLjkxLTAuMzQtMC44OC0wLjM2LTAuODUtMC4zNC0wLjgyLTAuMzYtMC43OS0wLjM2LTAuNzctMC4zNi0wLjcyLTAuMzYtMC43LTAuMzYtMC42Ni0wLjM3LTAuNjQtMC4zNiA0Ljk4LTE2LjcgMC41NyAwLjM0IDAuNiAwLjM0IDAuNjEgMC4zNCAwLjY0IDAuMzIgMC42NiAwLjMyIDAuNjggMC4zMiAwLjcgMC4zMiAwLjcyIDAuMjkgMC43NSAwLjMgMC43NiAwLjMgMC43NyAwLjMgMC43OCAwLjI3IDAuNzkgMC4yNiAwLjgxIDAuMjcgMC44MiAwLjI2IDAuODMgMC4yMyAwLjg1IDAuMjQgMC44NSAwLjIxIDAuODcgMC4yMSAwLjg1IDAuMTkgMC44OCAwLjE5IDAuODkgMC4xNyAwLjg3IDAuMTUgMC44OSAwLjE1IDAuODcgMC4xMyAwLjkgMC4xIDAuODkgMC4xMSAwLjg3IDAuMDYgMC44OSAwLjA3IDAuODcgMC4wNiAwLjkgMC4wMmgwLjg3bDEuNC0wLjAyIDEuMzYtMC4wNiAxLjI3LTAuMTEgMS4xOS0wLjEzIDEuMTUtMC4xOSAxLjA5LTAuMjEgMS4wMi0wLjI1IDAuOTUtMC4yOCAwLjkyLTAuMzIgMC44NS0wLjM0IDAuNzgtMC4zNiAwLjcyLTAuMzggMC42OC0wLjQxIDAuNjQtMC40MiAwLjYtMC40NSAwLjUzLTAuNDQgMC40OS0wLjQ3IDAuNDYtMC40OSAwLjQxLTAuNDcgMC4zNi0wLjQ5IDAuMzItMC41MSAwLjMtMC40OSAwLjI1LTAuNDggMC4yMy0wLjQ5IDAuMi0wLjQ5IDAuMTQtMC40NyAwLjEzLTAuNDcgMC4xMS0wLjQ0IDAuMDgtMC40NSAwLjA1LTAuNDIgMC4wNC0wLjQxdi0wLjM4LTAuOTFsLTMuMTctMC4wMy0zLjEtMC4wOC0zLjAyLTAuMTUtMi45My0wLjIxLTIuODUtMC4yOC0yLjc2LTAuMzYtMi43LTAuNC0yLjU5LTAuNDktMi41MS0wLjUzLTIuNC0wLjYyLTIuMzQtMC42OC0yLjIzLTAuNzQtMi4xMi0wLjgxLTIuMDQtMC44Ny0xLjk2LTAuOTQtMS44NS0xLTEuNzQtMS4wNi0xLjY0LTEuMTItMS41NS0xLjE5LTEuNDItMS4yOC0xLjM0LTEuMzE3LTEuMjEtMS4zODEtMS4xMS0xLjQ2Ni0xLjAyLTEuNTA5LTAuODctMS41NzItMC43OC0xLjY1OC0wLjY2LTEuNy0wLjUzLTEuNzg1LTAuNDMtMS44MjctMC4zMi0xLjg5Mi0wLjE3LTEuOTc2LTAuMDYtMi4wMTkgMC4wMi0xLjIxMSAwLjA4LTEuMjExIDAuMTUtMS4yMTEgMC4yMi0xLjE5IDAuMjctMS4xOSAwLjMyLTEuMTkgMC4zOC0xLjE2OSAwLjQ1LTEuMTQ4IDAuNDktMS4xMjYgMC41Ny0xLjEwNSAwLjYyLTEuMDg0IDAuNjYtMS4wNjIgMC43Mi0xLjA0MSAwLjc5LTAuOTk5IDAuODUtMC45NzggMC44OS0wLjkzNSAwLjk1LTAuODkyIDEtMC44NSAxLjA3LTAuODA4IDEuMS0wLjc2NSAxLjE3LTAuNzIyIDEuMjMtMC42OCAxLjI4LTAuNjE2IDEuMzQtMC41NTMgMS4zOC0wLjUxIDEuNDItMC40NDYgMS41MS0wLjM4MyAxLjUzLTAuMzE4IDEuNTktMC4yNTUgMS42NC0wLjE5MiAxLjctMC4xMDYgMS43NC0wLjA0MiAxLjA2IDAuMDIxIDEuMDUgMC4wNDIgMS4wMiAwLjA0MyAxLjAyIDAuMDg1IDAuOTkgMC4xMDYgMSAwLjEyOCAwLjk4IDAuMTQ4IDAuOTggMC4xNyAwLjk1IDAuMjEzIDAuOTQgMC4yMTIgMC45MyAwLjIzNCAwLjkyIDAuMjU1IDAuODkgMC4yNzYgMC44OSAwLjI5OCAwLjg3IDAuMzQgMC44NSAwLjM0IDAuODMgMC4zNjEgMC44MyAwLjM4MyAwLjgxIDAuMzgyIDAuNzkgMC40MjUgMC43NiAwLjQ0NiAwLjc0IDAuNDQ3IDAuNzUgMC40ODggMC43IDAuNDg5IDAuNyAwLjUxIDAuNjggMC41MzEgMC42NiAwLjU1MyAwLjYyIDAuNTc0IDAuNjEgMC41NzMgMC42IDAuNTk1IDAuNTcgMC42MTcgMC41NSAwLjYzN2gwLjNsMi44OS04LjgxOWgyMS41MXY1MC4yMzdsLTAuMDMgMS45MS0wLjEgMS44Ny0wLjE1IDEuODUtMC4yMSAxLjgzLTAuMjggMS44LTAuMzYgMS43Ny0wLjQgMS43Mi0wLjQ5IDEuNjgtMC41OCAxLjY1LTAuNjEgMS42LTAuNzMgMS41NS0wLjc4IDEuNTEtMC44NyAxLjQ2LTAuOTQgMS40MS0xLjA0IDEuMzYtMS4xIDEuMjktMS4xOSAxLjI0LTEuMyAxLjE2LTEuMzggMS4xMS0xLjQ3IDEuMDQtMS41NSAwLjk4LTEuNjYgMC44OS0xLjc0IDAuODMtMS44NSAwLjc0LTEuOTMgMC42OC0yLjA2IDAuNTgtMi4xNSAwLjUxLTIuMjUgMC40Mi0yLjM2IDAuMzItMi40NyAwLjIzLTIuNTcgMC4xNS0yLjY3IDAuMDV6bTE1LjA4LTU2LjA4M3YtMC41MWwtMC4wMi0wLjUzMS0wLjA0LTAuNTMxLTAuMDQtMC41NTMtMC4wNy0wLjUzMS0wLjA2LTAuNTUzLTAuMDktMC41MzEtMC4xMi0wLjUzMS0wLjA1LTAuMTkxLTAuMDgtMC4yNzctMC4wNi0wLjI1NS0wLjA3LTAuMTctMC4wOC0wLjIxMi0wLjA5LTAuMjEzLTAuMjMtMC41MzEtMC4yNi0wLjUxLTAuMjctMC41MS0wLjMtMC41MS0wLjMyLTAuNDg5LTAuMzQtMC41MS0wLjM2LTAuNDg4LTAuMzgtMC40NjgtMC40MS0wLjQ2Ny0wLjQtMC40NjgtMC40NS0wLjQ0Ni0wLjQ2LTAuNDQ2LTAuNDctMC40MjUtMC40OS0wLjQwNC0wLjUzLTAuNDA0LTAuNTMtMC4zODItMC41Ni0wLjM2Mi0wLjU1LTAuMzYxLTAuNTktMC4zMTktMC42LTAuMzE4LTAuNjEtMC4yOTgtMC42NC0wLjI1NS0wLjY0LTAuMjU1LTAuNjgtMC4yMzQtMC42OC0wLjE5MS0wLjY4LTAuMTkxLTAuNzItMC4xNDktMC43Mi0wLjEyNy0wLjczLTAuMTA3LTAuNzYtMC4wNjMtMC43Ny0wLjA2NGgtMC43Ni0wLjY4bC0wLjY2IDAuMDQyLTAuNjQgMC4wNDMtMC42NCAwLjA4NS0wLjYxIDAuMTA2LTAuNiAwLjEwNi0wLjU5IDAuMTQ5LTAuNTggMC4xNy0wLjUzIDAuMTctMC41NSAwLjIxMy0wLjUxIDAuMjMzLTAuNDkgMC4yNTUtMC40OSAwLjI1NS0wLjQ0IDAuMjk4LTAuNDUgMC4zMTktMC40IDAuMzE4LTAuNDEgMC4zNjItMC4zNiAwLjM4Mi0wLjM2IDAuMzgzLTAuMzIgMC40MjUtMC4zIDAuNDQ2LTAuMjkgMC40NDYtMC4yNiAwLjQ4OS0wLjIzIDAuNDg5LTAuMTkgMC41MS0wLjE5IDAuNTUyLTAuMTUgMC41NTMtMC4xMyAwLjU3My0wLjExIDAuNjE3LTAuMDYgMC42MTYtMC4wNCAwLjYzNy0wLjAyIDAuNjU5IDAuMDIgMC43NDQgMC4wNiAwLjcwMSAwLjExIDAuNzAxIDAuMTIgMC42OCAwLjE3IDAuNjM4IDAuMjIgMC42MzcgMC4yNSAwLjU5NSAwLjI4IDAuNTk1IDAuMzIgMC41NzQgMC4zNCAwLjUzMSAwLjM4IDAuNTMyIDAuNDIgMC41MSAwLjQ1IDAuNDg4IDAuNDkgMC40NDcgMC41MSAwLjQ0NiAwLjU1IDAuNDI1IDAuNTggMC40MjUgMC41OSAwLjM4MiAwLjY0IDAuMzYyIDAuNjYgMC4zNjEgMC42OCAwLjM0IDAuNzIgMC4zMTkgMC43MiAwLjI5NyAwLjc3IDAuMjc2IDAuOCAwLjI3NyAwLjgxIDAuMjMzIDAuODMgMC4yMzQgMC44NyAwLjIzNCAwLjg3IDAuMTkxIDAuOTIgMC4xOTEgMC45MSAwLjE3IDAuOTYgMC4xNDkgMC44OSAwLjEyOCAwLjkzIDAuMTI3IDAuOTQgMC4xMDYgMC45OCAwLjEwNyAwLjk3IDAuMDYzIDEuMDIgMC4wODUgMS4wMiAwLjA0MyAxLjA1IDAuMDQyIDAuNjMgMC4wMjIgMC42NCAwLjAyMSAwLjY2IDAuMDIxaDAuNjQgMC42NiAwLjY1IDAuNjYgMC42OHYtOS4wMXoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0iI2ZmZjIxMiIvPgogICAgIDxwYXRoIGQ9Im0yODUuODMgMTQxLjY2di00OS43ODktMC43NDRsLTAuMDQtMC43MjItMC4wNy0wLjcwMi0wLjEtMC42OC0wLjExLTAuNjgtMC4xNS0wLjYzNy0wLjE5LTAuNjM4LTAuMjMtMC41OTUtMC4xOS0wLjQ4OC0wLjI0LTAuNDg5LTAuMjUtMC40ODktMC4yNi0wLjQ4OS0wLjI3LTAuNDY3LTAuMy0wLjQ4OS0wLjMyLTAuNDg5LTAuMzQtMC40NjctMC4zNi0wLjQ2OC0wLjM2LTAuNDY3LTAuNDEtMC40NjgtMC40LTAuNDQ2LTAuNDItMC40MjUtMC40NS0wLjQyNS0wLjQ3LTAuNDA0LTAuNDktMC40MDMtMC41MS0wLjM4My0wLjUxLTAuMzgyLTAuNTUtMC4zNC0wLjU1LTAuMzQtMC42LTAuMjk4LTAuNTktMC4yOTctMC42Mi0wLjI3Ny0wLjY0LTAuMjMzLTAuNjUtMC4yMzQtMC42OC0wLjE5MS0wLjcxLTAuMTctMC43Mi0wLjEyOC0wLjcyLTAuMTI3LTAuNzctMC4wNjQtMC43Ni0wLjA2NGgtMC44MWwtMC45OCAwLjAyMS0wLjk1IDAuMDY0LTAuOTQgMC4xMDYtMC44OSAwLjE3LTAuODUgMC4xOTItMC44MyAwLjI1NS0wLjc4IDAuMjk3LTAuNzUgMC4zNC0wLjcyIDAuMzYxLTAuNjggMC40MjUtMC42NiAwLjQ2OC0wLjYyIDAuNTEtMC41NyAwLjUzMS0wLjU3IDAuNTk1LTAuNTEgMC42MTYtMC40OSAwLjY1OS0wLjQ3IDAuNzAxLTAuNDIgMC43NDQtMC4zOSAwLjc4Ni0wLjM4IDAuODA4LTAuMzIgMC44NS0wLjMyIDAuODkyLTAuMjcgMC45MzUtMC4yNCAwLjk1Ny0wLjIxIDAuOTk4LTAuMTkgMS4wMi0wLjE1IDEuMDYzLTAuMTMgMS4xMDUtMC4xIDEuMTI2LTAuMDcgMS4xNjktMC4wNCAxLjE5LTAuMDIgMS4yMzJ2NDQuOTQyaC0yNS44di00OS42NTktMS4yNTRsMC4wNC0xLjIxMSAwLjA1LTEuMTY5IDAuMDYtMS4xNjkgMC4wOS0xLjE0NyAwLjEtMS4xMjYgMC4xMy0xLjA4NCAwLjEzLTEuMDg0IDAuMTctMS4wNDEgMC4xNy0xLjAyIDAuMTktMC45OTkgMC4yMy0wLjk3NyAwLjI0LTAuOTU3IDAuMjUtMC45MzUgMC4yNi0wLjkxMyAwLjI5LTAuODcyIDAuMy0wLjg3MSAwLjM0LTAuODUgMC4zMi0wLjgyOSAwLjM2LTAuODA3IDAuMzYtMC43ODYgMC4zNi0wLjc2NSAwLjQxLTAuNzQ0IDAuNC0wLjc0NCAwLjQtMC43MDEgMC40My0wLjcwMSAwLjQ1LTAuNjggMC40Ni0wLjYzOCAwLjQ3LTAuNjM3IDAuNDktMC42MTcgMC40OS0wLjU5NSAwLjUxLTAuNTczIDAuNTMtMC41NzQgMC41NS0wLjUzMSAwLjU1LTAuNTMyIDAuNTYtMC40ODggMC41OS0wLjQ4OSAwLjU4LTAuNDY4IDAuNjEtMC40NDYgMC42Mi0wLjQyNSAwLjY0LTAuNDA0IDAuNjMtMC4zODIgMC42Ni0wLjM2MSAwLjY2LTAuMzYyIDAuNjgtMC4zMTggMC43LTAuMzE5IDAuNy0wLjI3NiAwLjczLTAuMjc3IDAuNzQtMC4yNTUgMC43Mi0wLjIzMyAwLjc3LTAuMjM0IDAuNzQtMC4xOTEgMC43OS0wLjE5MiAwLjc2LTAuMTcgMC43OS0wLjE3IDAuODEtMC4xMjcgMC44LTAuMTI4IDAuODEtMC4xMDYgMC44My0wLjA4NSAwLjgzLTAuMDg1IDAuODUtMC4wNjQgMC44NS0wLjAyMSAwLjg3LTAuMDQyaDAuODcgMC43N2wwLjc0IDAuMDIxIDAuNzIgMC4wMjEgMC43MiAwLjA0MyAwLjczIDAuMDYzIDAuNyAwLjA2NCAwLjcgMC4wNjQgMC42OCAwLjEwNiAwLjY2IDAuMDg1IDAuNjYgMC4xMjggMC42NiAwLjEwNiAwLjYzIDAuMTQ5IDAuNjIgMC4xMjcgMC42MiAwLjE3IDAuNjEgMC4xNyAwLjYgMC4xNyAxLjE0IDAuMzgzIDEuMTMgMC40MDMgMS4wNiAwLjQyNSAxLjA0IDAuNDI1IDEgMC40NjggMC45NiAwLjQ2NyAwLjkxIDAuNTEgMC44NyAwLjUxIDAuODMgMC41MzIgMC44MSAwLjUzMSAwLjc3IDAuNTUyIDAuNzQgMC41NTMgMC43IDAuNTc0IDAuNjYgMC41OTUgMC42MiAwLjU5NSAwLjU5IDAuNjE2IDAuNTcgMC41OTUgMC41NCAwLjU5NSAwLjQ4IDAuNTc0IDAuNDcgMC41NTIgMC40NSAwLjUzMSAwLjQgMC41MzIgMC4zNiAwLjQ4OCAwLjM0IDAuNTEgMy4zMi0xMi4wN2gyMC45NXY4NC45MzdoLTI2LjE4eiIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWxsPSIjZmZmMjEyIi8+CiAgICAgPHBhdGggZD0ibTc5Ljg5NyAxNzAuMDd2LTI4LjM3aC0xMi4wNDl2LTE5LjM2aDEyLjA0OXYtMzQuNTQ5bDAuMDIxLTEuMDYzIDAuMDIxLTEuMDQxIDAuMDIyLTEuMDQxIDAuMDQyLTAuOTk5IDAuMDY0LTAuOTk5IDAuMDg1LTAuOTc3IDAuMDg1LTAuOTU2IDAuMTA2LTAuOTU3IDAuMTA2LTAuOTEzIDAuMTI4LTAuOTE0IDAuMTQ5LTAuODkzIDAuMTctMC44NzEgMC4xNy0wLjg1IDAuMTkxLTAuODUgMC4xOTEtMC44MDcgMC4yMTMtMC44MDggMC4yMzMtMC43ODYgMC4yNTUtMC43NjUgMC4yNTUtMC43NDQgMC4yNzctMC43MjIgMC4yOTctMC43MjMgMC4yOTgtMC42OCAwLjMxOC0wLjY4IDAuMzQtMC42MzcgMC4zNC0wLjYzOCAwLjM2Mi0wLjYxNiAwLjM4Mi0wLjU5NSAwLjQwNC0wLjU5NSAwLjQwNC0wLjU1MyAwLjQyNS0wLjUzMSAwLjQ0Ni0wLjUzMSAwLjQ0Ni0wLjQ4OSAwLjQyNS0wLjQyNSAwLjQyNS0wLjQyNSAwLjQ0Ni0wLjQwNCAwLjQ0Ny0wLjQwMyAwLjQ4OC0wLjM4MyAwLjQ4OS0wLjM4MiAwLjUzMS0wLjM4MyAwLjUzMi0wLjM2MSAwLjUzMS0wLjM2MSAwLjU3NC0wLjM0IDAuNTczLTAuMzE5IDAuNTk1LTAuMzQgMC42MTctMC4yOTggMC42MTYtMC4yOTcgMC42NTktMC4yOTggMC42MzctMC4yNTUgMC42OC0wLjI3NiAwLjY4LTAuMjM0IDAuNzAxLTAuMjMzIDAuNzAyLTAuMjEzIDAuNzIyLTAuMjEyIDAuNzQ0LTAuMTcgMC43NDMtMC4xNyAwLjc3LTAuMTQ5IDAuNzYtMC4xNDkgMC43OS0wLjEyNyAwLjc4LTAuMDg1IDAuODEtMC4wODUgMC44MS0wLjA4NSAwLjgzLTAuMDQzIDAuODMtMC4wMjEgMC44NS0wLjAyMSAxLjQgMC4wMjEgMS4yOSAwLjA0MiAxLjIyIDAuMDY0IDEuMSAwLjA4NSAxLjA0IDAuMTA2IDAuOTYgMC4xMjggMC45MSAwLjE0OSAwLjgzIDAuMTcgMC44MSAwLjE3IDAuNzQgMC4xOTEgMC43IDAuMjEyIDAuNyAwLjIxMyAxLjMyIDAuNDY3IDEuMyAwLjQ4OXYxOS43NDFsLTAuMzQtMC4xMjctMC40NS0wLjEyOC0wLjUzLTAuMTI3LTAuNjYtMC4xMDYtMC43NC0wLjEwNy0wLjgzLTAuMDYzLTAuODktMC4wNjQtMC45Ni0wLjAyMS0wLjg1IDAuMDIxLTAuNzkgMC4wNDItMC43NiAwLjA4NS0wLjcyIDAuMTI4LTAuNjggMC4xNDktMC42NCAwLjE3LTAuNjIgMC4yMTItMC41NyAwLjI1NS0wLjUzIDAuMjc2LTAuNTEgMC4yOTgtMC40OSAwLjM2MS0wLjQzIDAuMzYxLTAuNDIgMC40MDQtMC4zOCAwLjQyNS0wLjM2IDAuNDY4LTAuMzIgMC41MS0wLjMgMC41MS0wLjI4IDAuNTczLTAuMjUgMC41NzQtMC4yNCAwLjYxNi0wLjE5IDAuNjU5LTAuMTkgMC42NTktMC4xNSAwLjcyMi0wLjE1IDAuNzIzLTAuMSAwLjc2NS0wLjExIDAuODA3LTAuMDggMC44MDgtMC4wNyAwLjg1LTAuMDQgMC44OTItMC4wNCAwLjg5My0wLjAyIDAuOTM1djAuOTU2IDMwLjEwOGgxNi40djE5LjM2aC0xNi40djI4LjM3aC0yNS42NzN6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiNmZmYyMTIiLz4KICAgICA8cGF0aCBkPSJtMjc2LjA4IDE3MC4wOS0xNS45NC0yMi45MWgxOC40NGwyMi40NyAyMi45MWgtMjQuOTd6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiNmZmYyMTIiLz4KICAgIDwvZz4KICAgPC9nPgogIDwvZz4KIDwvZz4KPC9zdmc+Cg==',
+  'inter':'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCEtLSBDcmVhdGVkIHdpdGggSW5rc2NhcGUgKGh0dHA6Ly93d3cuaW5rc2NhcGUub3JnLykgLS0+Cjxzdmcgd2lkdGg9IjUwMCIgaGVpZ2h0PSIxMjciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDUwMCAxMjciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiA8cGF0aCBkPSJtMCAxMjAuODNoNTMuMjk4bDAuMjgzNS0xLjQ3NTgtNTIuNTYtMTAuODk4IDEuMDIxNC01Ljg0NiA1Mi41NiAxMS4zNTIgMC40NTQxLTIuMDQzNi00OS42NjUtMjEuNTY5IDIuMTU2OC01Ljk1OTcgNDkuNzc5IDIwLjk0NCAxLjAyMTUtMS40NzU1LTQ0LjEwMi0zMi43NTEgNC41NDA2LTcuMTUxNyA0My44MTkgMzIuNzUgMS4zMDUzLTEuNzU5NC0zNC41MS00My44MTkgOC40NTc0LTYuODY4MSAzNC4yMjYgNDEuNzc2IDEuNDc1OS0xLjMwNTQtMTkuOTIzLTUwLjY4NyAxMi4wOS01LjEwODQgMTguNzg4IDQ5LjY2NSAxLjQ3NTgtMC40NTQwMnYtNTUuMDU3aDE5LjI5OHYxMDEuOTRoLTEwNS4yOXptMzA2LjczLTE4LjA1aDIwLjgzMXYyMi40MjFoLTE3LjMxMmMtMTguMjIgMC0yOS40MDItNi4zMDA0LTI5LjQwMi0yOS40MDJ2LTUwLjA2M2gtMTIuMzc0Yy0yLjE1NzEgMC0zLjI5MjMtMi42MTExLTEuODE2NS00LjIwMDRsMzUuODE2LTQwLjY0YzEuNTMyNS0xLjY0NiA0LjMxMzgtMC41Njc1OSA0LjMxMzggMS43MDI4djIwLjcxN2gyMC42NnYyMi40MmgtMjAuNjZ2NTcuMDQ0em0tNzQuMjQyLTgxLjExYy0xMi40MzEgMC0yMS43MzkgNy4xNTE4LTI2LjI4IDE4LjM5aC0wLjg1MTd2LTE2LjgwMWgtMjQuNjkxdjEwMS45NGgyNS45NHYtNzkuMDFoMTcuMzEyYzcuNTQ5IDAgMTAuMzMgMS41ODkzIDEwLjMzIDkuNjQ5djY5LjM2MWgyNS45NHYtNzQuNDEzYy0wLjA1NS0yMC40OS05Ljg3NjYtMjkuMTE4LTI3LjY5OS0yOS4xMTh6bS05Ni42NjMgMTAzLjUzaDI1LjkzOXYtMTAxLjk0aC0yNS45Mzl6bTMzOS4zNy04My44OTJoLTEuMDc1NHYtMTguMDVoLTI1Ljc3MnYxMDEuOTRoMjcuNDczdi03Ny41OTFoMjQuMTgxdi0yNS45MzloLTMuMzUwN2MtMTIuNzE1IDAtMTguMzM0IDUuNjE5Mi0yMS40NTYgMTkuNjM5em0tMzguODc4IDMwLjMxdjcuNzE5MWgtNzcuNzYyYzEuNDE3NyAxNS4xNTUgMTAuODk2IDI1LjIwMiAyNS41NCAyNS4yMDIgMTMuMTEyIDAgMjIuNTkxLTYuOTgxNiAyNC41Mi0xNS42MDloMjcuNjQzYy01Ljc4ODUgMjEuNTEyLTI1LjU0IDM3Ljk3My01Mi41NiAzNy45NzMtMzEuNTAyIDAtNTIuODk5LTIyLjQyLTUyLjg5OS01MS44MjIgMC0yOS40MDIgMjAuNjYxLTUzLjQxMSA1My41ODEtNTMuNDExIDMxLjEwNCAwIDUxLjkzOCAyMS4zOTkgNTEuOTM4IDQ5Ljk0OXptLTc2Ljk3LTExLjA2OGg1MC4xNzhjLTMuOTE3OS0xMC4yMTctMTIuMjAzLTE3LjUzOS0yNS4wMzItMTcuNTM5LTExLjIzOCAwLjA1NjctMjEuMTE0IDUuOTU5Ny0yNS4xNDYgMTcuNTM5eiIgZmlsbD0iI2VhNzEwMCIgc3Ryb2tlLXdpZHRoPSIzLjQ1NzkiLz4KPC9zdmc+Cg==',
+  'sicoob':'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjExMSIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTAwIDExMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDxwYXRoIGQ9Im0zMjAuMjEgMTcuNzloLTAuNDMzMzVjLTIyLjUzNCAwLjIzMzM0LTM2LjQzNSAxNy4yNTEtMzYuNDM1IDM4Ljc1MSAwIDIwLjYwMSAxMi42NjcgMzcuODY4IDM1LjY4NSAzNy44NjhoMC43NjY2OWMyMi40MDEtMC4yODMzNCAzNi40MzUtMTUuNDAxIDM2LjQzNS0zOS4wNjgtMC4wMTY3LTE5LjgxNy0xMi4xMTctMzcuNTUxLTM2LjAxOC0zNy41NTF6bS0wLjIwMDAxIDYwLjg4NWgtMC4yMTY2N2MtOS41ODM2IDAtMTUuNTM0LTkuMjMzNi0xNS40MTctMjIuNTUxIDAtMTIuODg0IDUuODMzNS0yMi41NTEgMTUuNDE3LTIyLjU1MSA5LjcwMDMgMCAxNS40MTcgOS42NjcgMTUuNDE3IDIyLjQzNC0wLjAxNjcgMTMuNDE3LTUuNjMzNSAyMi42NjctMTUuMjAxIDIyLjY2N3ptNzkuNDg2LTYwLjg4NWgtMC40MzMzNWMtMjIuNTUxIDAuMjMzMzQtMzYuNDY4IDE3LjI1MS0zNi40NjggMzguNzUxIDAgMjAuNjAxIDEyLjY4NCAzNy44NjggMzUuNjg1IDM3Ljg2OGgwLjc2NjdjMjIuNDAxLTAuMjgzMzQgMzYuNDM1LTE1LjQwMSAzNi40MzUtMzkuMDY4IDAtMTkuODE3LTEyLjEzNC0zNy41NTEtMzYuMDAxLTM3LjU1MXptLTAuMjE2NjcgNjAuODg1aC0wLjIxNjY4Yy05LjU4MzYgMC0xNS41MzQtOS4yMzM2LTE1LjQxNy0yMi41NTEgMC0xMi44ODQgNS44MzM1LTIyLjU1MSAxNS40MTctMjIuNTUxczE1LjQxNyA5LjY2NyAxNS40MTcgMjIuNDM0Yy0wLjAxNjcgMTMuNDE3LTUuNjMzNSAyMi42NjctMTUuMjE3IDIyLjY2N3ptODYuMjItMjUuNTM0di0wLjIzMzM0YzguNzE3LTMuMzMzNCAxMi4xMTctOS4zNTAzIDEyLjExNy0xNS41MTdhMTYuNTM0IDE2LjUzNCAwIDAgMC0xMC0xNS4zMDFjLTQuODY2OC0yLjQzMzQtMTAuMTg0LTMuMzMzNC0xOC4xNjctMy41ODM1aC00LjUxNjhhMTUwIDE1MCAwIDAgMC0yMy40NTEgMS42NjY3djcyLjU4NmExMTAuNTkgMTEwLjU5IDAgMCAwIDE5LjYxNyAxLjMzMzRjMy4wMDAxIDAgNS44MDAyIDAgOC4zMzM2LTAuMjUwMDEgMTAuODg0LTAuNzMzMzYgMTcuNzg0LTIuOTY2OCAyMi4yMzQtNi4zNjY5YTIwLjAwMSAyMC4wMDEgMCAwIDAgOC4zMzM2LTE2LjI4NGMwLjAxNjctOC44MTctNS40NjY4LTE1LjUxNy0xNC41MTctMTguMDUxem0tMjQuMzM0LTIwLjAwMWEzNy4xNjggMzcuMTY4IDAgMCAxIDYuNTAwMi0wLjQzMzM1aDEuNzY2N2M1LjU1MDIgMC40NTAwMiA4LjMzMzYgMy4wODM0IDguMzMzNiA2Ljk4MzZzLTIuNzAwMSA2LjU1MDItOC4zMzM2IDcuNDAwMmEyNy45NjggMjcuOTY4IDAgMCAxLTQuMjgzNSAwLjI4MzM0aC0zLjk4MzV6bTguMzMzNiA0Ni4yMThhMjUuMDAxIDI1LjAwMSAwIDAgMS0yLjUxNjggMC4xMzMzNCAzOS4xMTggMzkuMTE4IDAgMCAxLTUuNzUwMi0wLjIzMzM0di0xNy41NTFoNC43NTAyYTMzLjcxOCAzMy43MTggMCAwIDEgMy41MTY4IDAuMTgzMzRjNS42ODM1IDAuNzAwMDIgOS43MDAzIDMuMjUwMSA5LjcwMDMgOC41MTY5LTAuMDgzMyA1LjY1MDItNC4zMzM1IDguMzgzNi05Ljc4MzYgOS4wMTd6bS0yNzcuMTEtNjAuMzAydjc0LjEzNmgxOS45MTd2LTYyLjAzNWMwLTkuMzE3LTUuMDUwMi0xMi4xLTE5LjkxNy0xMi4xem0tMjguOTUxIDI5LjMxOGMtOS4zNjctMy41NTAxLTEzLjMzNC01LjAwMDItMTMuMzM0LTguNzE3IDAtMy4zMzM0IDMuMzMzNC01LjUwMDIgOS4zNjctNS41MDAyYTQwLjkxOCA0MC45MTggMCAwIDEgMTYuMDY3IDMuNTMzNWMyLjgwMDEtNy42NTAzIDQuNDY2OC0xOS43NTEtMTUuODUxLTE5Ljc1MS0xOC43MDEgMC0yOS44MzQgMTAuMTE3LTI5LjgzNCAyMy4yMTcgMCAxMS4wMTcgOC4zMzM2IDE3LjgzNCAyMC45MTcgMjIuMzUxIDguMzMzNiAyLjg2NjggMTEuNjY3IDQuODMzNSAxMS42NjcgOC40NjY5cy0zLjMzMzQgNi4wNjY5LTEwLjExNyA2LjA2NjlhNDQuNjM1IDQ0LjYzNSAwIDAgMS0xOS4yNjctNC42NjY4bC0zLjc1MDEgMTYuMzg0YzQuMTgzNSAyLjIzMzQgMTIuODg0IDQuNTMzNSAyMS44MDEgNC41MzM1IDIxLjY2NyAwIDMxLjY2OC0xMC44ODQgMzEuNjY4LTIzLjY1MS0wLjA4MzMtMTAuMzM0LTYuMDAwMi0xNy4zODQtMTkuMzM0LTIyLjI2N3ptMTAwLjk1IDI5LjQ4NGMtMTMuNjUgMC0yMS42NjctOC4zMzM2LTIxLjY2Ny0yMS44MTcgMC0xNSA5LjkwMDMtMjEuODAxIDIxLjI1MS0yMS44MDFhMzcuNDAxIDM3LjQwMSAwIDAgMSAxMy43NjcgMi42NTAxYzMuNTAwMS04LjAwMDMgMi42NTAxLTE4LjkzNC0xNC42NS0xOC45MzQtMjIuMTM0IDAtNDEuMjg1IDEzLjMzNC00MS4yODUgMzkuNDE4IDAgMTkuNzAxIDEyLjIxNyAzNy4wMDEgNDAuMDAxIDM3LjAwMSA4LjgxNyAwIDE1Ljg1MS0xLjY2NjcgMTguNjAxLTMuMTAwMWwtMi43NTAxLTE1LjUzNGE0MC44NTEgNDAuODUxIDAgMCAxLTEzLjI2NyAyLjA2Njd6IiBmaWxsPSIjMDAzNjQxIi8+CiA8cGF0aCBkPSJtNi4yODM2IDAuMDM5NzU3YTcuMjMzNiA3LjIzMzYgMCAwIDAtMi44NjY4IDAuODY2NyA2LjgxNjkgNi44MTY5IDAgMCAwLTMuNDE2OCA1LjkzMzUgNy4wNjY5IDcuMDY2OSAwIDAgMCAwLjcxNjY5IDMuMDgzNGwzMy42MzQgNTguNDUyIDEwLjktMTguODUxIDE3LjczNC0zMC43MDEtMTAuODY3LTE4Ljc4NHoiIGZpbGw9IiM3MmJmNDQiLz4KIDxwYXRoIGQ9Im01Mi4xMTggMC4wMzk3NTcgMjguNjAxIDQ5LjQzNWgyMS42NjdsMjIuOTE3LTM5LjcwMWE2LjgwMDIgNi44MDAyIDAgMCAwLTUuNzgzNS05LjczMzd6IiBmaWxsPSIjMDBhZTlkIi8+CiA8cGF0aCBkPSJtMTAwLjgyIDQ5LjQ3NWgtNTUuNTY5bC0xMC45IDE4LjkwMSAyMy4wMDEgMzkuNjY4YTcuMjE2OSA3LjIxNjkgMCAwIDAgMi4yMDAxIDIuMDAwMSA2LjY2NjkgNi42NjY5IDAgMCAwIDMuNDE2OCAwLjkxNjcgNi44ODM2IDYuODgzNiAwIDAgMCA1LjcxNjktMy4wODM0bDMzLjc2OC01OC4zMzV6IiBmaWxsPSIjYmZkNzMwIi8+Cjwvc3ZnPgo=',
+  'btg':'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzOTgiIGhlaWdodD0iMTU4IiB2aWV3Qm94PSIwIDAgMzk4IDE1OCI+DQogICAgPHBhdGggZmlsbD0iIzAwMWU2MSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzY5Ljk3NCA2Ny4wNDRoLTkuNjAzbC0uNzk1IDMuNTJoMTAuMzk4YzkuNTEzIDAgMTIuNzIzIDIuNTg4IDEyLjcyMyAxMC4yNTZ2My43MTJjLTIuMzU5LTIuNDE0LTYuNTMtMy42MzgtMTIuNDI0LTMuNjM4LTkuNDA0IDAtMTMuOTc1IDQuMDc1LTEzLjk3NSAxMi40NTV2LjYxYzAgNy44NTcgNC41MDIgMTEuODQyIDEzLjM3OCAxMS44NDJoMi4zOWM5LjQwMyAwIDE0LjE3My0zLjk4NSAxNC4xNzMtMTEuODQyVjgwLjgyYzAtOS43ODUtNC43MTMtMTMuNzc2LTE2LjI2NS0xMy43NzZ6bTEyLjcyMyAyNy40MjNjMCA1LjYyMy0zLjAwOCA3LjgxNC0xMC43MyA3LjgxNGgtMS40OTRjLTcuNDUyIDAtMTAuNjMyLTIuNDktMTAuNjMyLTguMzIydi0uNjFjMC02LjMzNSAzLjAzLTkuMDM2IDEwLjEzMy05LjAzNmguNTk4YzguNDk5IDAgMTIuMTI1IDIuNjEgMTIuMTI1IDguNzN2MS40MjR6TTEyMy4zOTIgNzMuOTVsMS44ODktOS40MDNoLTE2LjI2VjUxLjcwMmwtMTEuNDE0IDEuNzYydjM4LjM2N2MwIDEzLjI2NCA1LjA5IDE3LjIxMSAxOC45NjggMTcuMjExaDYuMDc2bDEuODktOS4zMmgtNy4xNDVjLTYuMzIyIDAtOC4zNzYtMS41OTMtOC4zNzYtOC42NDdWNzMuOTVoMTQuMzcyek00NC45NyA0Ny4yNTF2NDEuMjIzYzAgMTUuMjggNi44OTcgMjEuNjYgMjEuOTI1IDIxLjY2IDE1LjYwMiAwIDIyLjUtNi4yMTIgMjIuNS0yMS41Nzd2LTMuOTQ1YzAtMTQuNDQtNi40MDYtMjEuNDkzLTIwLjM2NS0yMS40OTMtNC40MzUgMC05LjI4LjkyMy0xMi41NjUgMy41MjV2LTIxLjI0TDQ0Ljk3IDQ3LjI1em0yMi4zMzUgMjUuMTAyYzcuODgzIDAgMTAuNjc2IDMuMTkxIDEwLjY3NiAxMi42Nzd2My41MjdjMCA5LjIzNC0yLjc5MyAxMi40MjYtMTAuODQgMTIuNDI2UzU2LjMgOTcuNzkxIDU2LjMgODguNDczdi00Ljc4NWMwLTguNDggMi43OTMtMTEuMzM1IDExLjAwNC0xMS4zMzV6bTgzLjY3OC05LjIzNGMtMTUuMDI4IDAtMjEuOTI2IDYuNDY0LTIxLjkyNiAyMS4yNHYyLjI2N2MwIDE0LjAyIDUuOTk1IDIwLjgyIDIwLjExOCAyMC44MiA0LjUxNyAwIDkuMDM0LS44MzggMTIuMjM2LTMuNDQydjEuNjgxYzAgNy44OTItMy4zNjYgMTAuNDkyLTExLjI1IDEwLjQ5MmgtNC43MmMtMi42OTguMDQ5LTMuOTI0LjUzOS01LjU1IDMuMjY0bC0uMDA5LS4wMDRjLTEzLjU0IDIxLjkwOC0zNy4wNDcgMzUuMjkyLTYyLjY2NSAzNS4yOTItNDAuODc1IDAtNzQuMTI4LTMzLjk5Ni03NC4xMjgtNzUuNzg2IDAtNDEuNzg5IDMzLjI1My03NS43ODUgNzQuMTI4LTc1Ljc4NSAyOC43MTEgMCA1NC44MyAxNi45OTkgNjcuMDUgNDMuNDUzaDMuNDA2QzEzNS4yMTkgMTguMjg0IDEwNy42MSAwIDc3LjIxNyAwIDM0LjY0IDAgMCAzNS40MTQgMCA3OC45NDNjMCA0My41MyAzNC42NCA3OC45NDQgNzcuMjE3IDc4Ljk0NCAyNS4wNCAwIDQ4LjE0OC0xMi4yNzQgNjIuNTU0LTMyLjY0M2gxMS4wNDdjMTQuNTM1IDAgMjIuMDA4LTUuNjI0IDIyLjAwOC0xOS45OHYtMjEuNjZjMC0xNC4yNzMtNy4xNDQtMjAuNDg1LTIxLjg0My0yMC40ODV6bTEwLjUxMSAyNC45MzRjMCA3Ljg5Mi0yLjcxIDEwLjMyNi0xMC41MSAxMC4zMjYtOC43ODggMC0xMC41MTItMy4xMDYtMTAuNTEyLTEyLjI1NnYtMS40MjdjMC05LjA2OSAxLjU2LTEyLjM0MyAxMC41MTEtMTIuMzQzIDguNzg2IDAgMTAuNTExIDMuMTkxIDEwLjUxMSAxMi40MjZ2My4yNzR6bTIzMi4wNiAxNy43NDhoMy41NDR2LTUzLjMyaC0zLjU0M3Y1My4zMnptLTc5LjgyMi0zNS4yMzZsLjc5NS0zLjUyMUgyOTguNjhWNTYuOTc4bC0zLjY0Mi42NjV2MzQuNDgzYzAgOS44MiAzLjU5OSAxMy40NzIgMTMuMjc3IDEzLjQ3Mmg1LjIzM2wuNjYyLTMuNTJoLTUuODk1Yy03LjI5NCAwLTkuNjM1LTIuMzY4LTkuNjM1LTkuNzVWNzAuNTY2aDE1LjA1M3ptMzIuODA1IDE5LjkzMmMwIDkuMDc1LTIuNzc3IDExLjk4Ny0xMS40MjcgMTEuOTg3LTguMzk1IDAtMTEuMjI5LTMuMDI0LTExLjIyOS0xMS45ODdWNjcuMDQ0aC0zLjY0MnYyMy40NTNjMCAxMS4xNiA0LjE3IDE1LjUwNyAxNC44NyAxNS41MDcgMTAuNjM0IDAgMTQuOTcxLTQuNDkxIDE0Ljk3MS0xNS41MDdWNjcuMDQ0aC0zLjU0M3YyMy40NTN6bS04MC4xMzItMi41NDZ2LTMuMjZjMC0xMC40MyAzLjQ4NS0xNC4xMjYgMTMuMzItMTQuMTI2aDguMzFsLjc5Mi0zLjUyMWgtOS4xMDFjLTExLjczIDAtMTYuOTY0IDUuNDQyLTE2Ljk2NCAxNy42NDZ2My4yNjFjMCAxMi4yMDQgNS4yMzMgMTcuNjQ3IDE2Ljk2NCAxNy42NDdoOC40MDZsLjc5NS0zLjUyaC05LjIwMWMtOS41ODcgMC0xMy4zMi0zLjk2MS0xMy4zMi0xNC4xMjd6TTI0MC4xOCA2Ny4wNDRoLTkuNjA0bC0uNzkzIDMuNTJoMTAuMzk3YzkuNDM4IDAgMTIuNjIyIDIuNTg4IDEyLjYyMiAxMC4yNTZ2My43MTJjLTIuMzU3LTIuNDE0LTYuNTI4LTMuNjM4LTEyLjQyNC0zLjYzOC05LjQwMiAwLTEzLjk3MyA0LjA3NS0xMy45NzMgMTIuNDU1di42MWMwIDcuODU3IDQuNTMzIDExLjg0MiAxMy40NzUgMTEuODQyaDIuMzkxYzkuMzQgMCAxNC4wNzUtMy45ODUgMTQuMDc1LTExLjg0MlY4MC44MmMwLTkuNzg1LTQuNjg0LTEzLjc3Ni0xNi4xNjYtMTMuNzc2em0xMi42MjIgMjcuNDIzYzAgNS42OTctMi44ODEgNy44MTQtMTAuNjMgNy44MTRoLTEuNDk0Yy03LjUyIDAtMTAuNzMtMi40OS0xMC43My04LjMyMnYtLjYxYzAtNi4zMzUgMy4wMy05LjAzNiAxMC4xMzItOS4wMzZoLjU5OGM4LjQ5OCAwIDEyLjEyNCAyLjYxIDEyLjEyNCA4LjczdjEuNDI0em0tNDguMjg0LTI4LjAzNGMtMTEuMjMyIDAtMTYuNDY0IDUuNjczLTE2LjQ2NCAxNy44NXYzMy4xMjhoMy41NDNWMTAwLjRjMi41NjQgMy40MDcgNy4zNDQgNS40MDEgMTMuMTIgNS40MDEgMTEuMTgxIDAgMTYuMTY3LTUuNTA2IDE2LjE2Ny0xNy44NXYtMy43NjljMC0xMi4yNzUtNS4wNDgtMTcuNzUtMTYuMzY2LTE3Ljc1ek0yMTcuMjQgODcuOTVjMCAxMC40NDctMy4zOTMgMTQuMzMtMTIuNTIzIDE0LjMzLTguNjQgMC0xMy4wMjEtNC4zMDctMTMuMDIxLTEyLjgwM3YtNS4xOTRjMC0xMC4xOCAzLjcxNS0xNC4zMzEgMTIuODIyLTE0LjMzMSA5LjE1NSAwIDEyLjcyMiAzLjk4OSAxMi43MjIgMTQuMjN2My43Njh6Ii8+DQo8L3N2Zz4=',
+  'mercadopago':'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMDBCMUVBIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+TWVyY2FkbyBQYWdvPC90aXRsZT48cGF0aCBkPSJNMTEuMTE1IDE2LjQ3OWEuOTMuOTI3IDAgMCAxLS45MzktLjg4NmMtLjAwMi0uMDQyLS4wMDYtLjE1NS0uMTAzLS4xNTUtLjA0IDAtLjA3NC4wMjMtLjExMy4wNTktLjExMi4xMDMtLjI1NC4yMDYtLjQ2LjIwNmEuODE2LjgxNCAwIDAgMS0uMzA1LS4wNjZjLS41MzUtLjIxNC0uNTQyLS41NzgtLjUyMS0uNzI1LjAwNi0uMDM4LjAwNy0uMDgtLjAyLS4xMWwtLjAzMi0uMDNoLS4wMzRjLS4wMjcgMC0uMDU1LjAxMi0uMDkzLjAzOWEuNzg4Ljc4NiAwIDAgMS0uNDU0LjE2LjcuNjk5IDAgMCAxLS4yNTMtLjA1Yy0uNzA4LS4yNy0uNjUtLjkyOC0uNjE3LTEuMTI2LjAwNS0uMDQxLS4wMDUtLjA3Mi0uMDMtLjA5MmwtLjA1LS4wNC0uMDQ3LjA0M2EuNzI4LjcyNiAwIDAgMS0uNTA1LjIwMy43My43MjggMCAwIDEtLjczMi0uNzI1YzAtLjQuMzI4LS43MjIuNzMyLS43MjIuMzY0IDAgLjY3NS4yNy43MjEuNjNsLjAyNi4xOTUuMTEtLjE2NWMuMDEtLjAxOC4zMDctLjQ2Ljg1Mi0uNDYuMTAyIDAgLjIxLjAxNi4zMTYuMDUuNDM0LjEzLjUwOC41Mi41MTkuNjguMDA4LjA5NC4wNzUuMS4wOS4xLjAzNyAwIC4wNjQtLjAyNC4wODMtLjA0NWEuNzQ2Ljc0NCAwIDAgMSAuNTQtLjIyNWMuMTI4IDAgLjI2My4wMy40MDIuMDkuNjkuMjkzLjM3OSAxLjE1OC4zNzQgMS4xNjctLjA1OC4xNDQtLjA2MS4yMDctLjAwNS4yNDRsLjAyNy4wMTNoLjAyYy4wMyAwIC4wNy0uMDE0LjEzNC0uMDM1LjA5My0uMDMyLjIzNS0uMDguMzY3LS4wOGEuOTQ0Ljk0MiAwIDAgMSAuOTQuOTMuOTM2LjkzNCAwIDAgMS0uOTQuOTI4em03LjMwMi00LjE3MWMtMS4xMzgtLjk4LTMuNzY4LTMuMjQtNC40ODEtMy43Ny0uNDA2LS4zMDItLjY4NS0uNDYyLS45MjgtLjUzM2ExLjU1OSAxLjU1NCAwIDAgMC0uNDU2LS4wN2MtLjE4MiAwLS4zNzYuMDMyLS41OC4wOTUtLjQ2LjE0NS0uOTE4LjUwNS0xLjM2Mi44NTRsLS4wMjMuMDE4Yy0uNDE0LjMyNC0uODQuNjYtMS4xNjQuNzNhMS45ODYgMS45OCAwIDAgMS0uNDMuMDQ5Yy0uMzYyIDAtLjY4Ny0uMTA0LS44MS0uMjU4LS4wMi0uMDI1LS4wMDctLjA2Ni4wNC0uMTI1bC4wMDgtLjAwOCAxLTEuMDY3Yy43ODMtLjc3NCAxLjUyNS0xLjUwNiAzLjIzLTEuNTQ1aC4wODVjMS4wNjIgMCAyLjEyLjQ2OSAyLjI0LjUyNGE3LjAzIDcuMDMgMCAwIDAgMy4wNTYuNzI0YzEuMDc2IDAgMi4xODgtLjI2MyAzLjM1NC0uNzk1YTkuMTM1IDkuMTEgMCAwIDAtLjQwNS0uMzE3Yy0xLjAyNS40NC0yLjAwMy42Ni0yLjk0Ni42Ni0uOTYyIDAtMS45MjUtLjIyOS0yLjg1OC0uNjgtLjA1LS4wMjItMS4yMi0uNTY3LTIuNDQtLjU3LS4wMzIgMC0uMDY1IDAtLjA5Ni4wMDItMS40MzQuMDMzLTIuMjQuNTM2LTIuNzgyLjk3Ni0uNTI4LjAxMy0uOTgyLjEzOC0xLjM4OC4yNS0uMzYxLjEtLjY3My4xODYtLjk3OS4xODUtLjEyNSAwLS4zNS0uMDEtLjM3LS4wMTItLjM1LS4wMS0yLjExNS0uNDM3LTMuNTE4LS45NjItLjE0My4xLS4yOC4yMDMtLjQxNS4zMSAxLjQ2Ni41OTMgMy4yNSAxLjA1MyAzLjgxMiAxLjA4OS4xNTcuMDEuMzIzLjAyNy40OTEuMDI3LjM3MiAwIC43NDQtLjEwMyAxLjEwNC0uMjAzLjIxMy0uMDU5LjQ0Ni0uMTIzLjY5Mi0uMTdsLS4xOTYuMTk0LTEuMDE3IDEuMDg3Yy0uMDguMDgtLjI1NC4yOTQtLjE0LjU1N2EuNzA1LjcwMyAwIDAgMCAuMjY4LjI5MmMuMjQzLjE2Mi42NzcuMjcgMS4wOC4yNzEuMTUyIDAgLjI5Ny0uMDE1LjQzLS4wNDQuNDI3LS4wOTUuODc0LS40NDggMS4zNDktLjgyLjM3Ny0uMjk2LjkxMy0uNjcyIDEuMzIzLS43ODJhMS40OTQgMS40OSAwIDAgMSAuMzctLjA1LjYxMS42MSAwIDAgMSAuMDk1LjAwNWMuMjcuMDM0LjUzMy4xMjUgMS4wMDMuNDcyLjgzNS42MiA0LjUzMSAzLjgxNSA0LjU2NiAzLjg0Ni4wMDIuMDAyLjIzOC4yMDMuMjIuNTM3LS4wMDcuMTg2LS4xMS4zNTItLjI5NC40NjZhLjkwMi45IDAgMCAxLS40ODQuMTUuODA0LjgwMiAwIDAgMS0uNDI4LS4xMjRjLS4wMTQtLjAxLTEuMjgtMS4xNTctMS43NDYtMS41NDMtLjA3NC0uMDYtLjE0Ni0uMTE1LS4yMi0uMTE1YS4xMjIuMTIyIDAgMCAwLS4wOTYuMDQ1Yy0uMDczLjA5LjAxLjIxMi4xMDUuMjk0bDEuNDggMS40N2MuMDAyIDAgLjE4NC4xNy4yMDQuMzk1LjAxMi4yNDQtLjEwNi40NDctLjM1LjYwNmEuOTU3Ljk1NSAwIDAgMS0uNTI2LjE3MS43NjYuNzY0IDAgMCAxLS40Mi0uMTI3bC0uMjE0LS4yMDZhMjEuMDM1IDIwLjk3OCAwIDAgMC0xLjA4LTEuMDA5Yy0uMDcyLS4wNTgtLjE0OC0uMTEyLS4yMjEtLjExMmEuMTI3LjEyNyAwIDAgMC0uMDk0LjAzOGMtLjAzMy4wMzctLjA1Ni4xMDMuMDI4LjIxMmEuNjk4LjY5NiAwIDAgMCAuMDc1LjA4M2wxLjA3OCAxLjE5OGMuMDEuMDEuMjIyLjI2LjAyNC41MTFsLS4wMzguMDQ4YTEuMTggMS4xNzggMCAwIDEtLjEuMDk2Yy0uMTg0LjE1LS40My4xNjQtLjUyNy4xNjRhLjguNzk4IDAgMCAxLS4xNDctLjAxMmMtLjEwNi0uMDE4LS4xNzgtLjA0OC0uMjEyLS4wODlsLS4wMTMtLjAxM2MtLjA2LS4wNi0uNjAyLS42MDktMS4wNTQtLjk4LS4wNTktLjA1LS4xMzMtLjExLS4yMS0uMTFhLjEyOC4xMjggMCAwIDAtLjA5Ni4wNDJjLS4wOS4wOTYuMDQ0LjI0LjEuMjkzbC45MiAxLjAwM2EuMjA0LjIwNCAwIDAgMS0uMDMzLjA2MmMtLjAzMy4wNDQtLjE0NC4xNTUtLjQ3OS4xOTZhLjkxLjkwNyAwIDAgMS0uMTIyLjAwN2MtLjM0NSAwLS43MTItLjE2NC0uOTAyLS4yNjRhMS4zNDMgMS4zNCAwIDAgMCAuMTMtLjU3NiAxLjM2OCAxLjM2NSAwIDAgMC0xLjQyLTEuMzU3Yy4wMjQtLjM0Mi0uMDI1LS45OS0uNjk3LTEuMjc0YTEuNDU1IDEuNDUyIDAgMCAwLS41NzUtLjEyNWMtLjE0NiAwLS4yODcuMDI1LS40Mi4wNzVhMS4xNTMgMS4xNSAwIDAgMC0uNjcxLS41NjQgMS41MiAxLjUxNSAwIDAgMC0uNDk0LS4wODVjLS4yOCAwLS41MzcuMDgtLjc2Ny4yNDJhMS4xNjggMS4xNjUgMCAwIDAtLjkwMy0uNDMgMS4xNzMgMS4xNyAwIDAgMC0uODIuMzM1Yy0uMjg3LS4yMTctMS40MjUtLjkzLTQuNDY3LTEuNjEzYTE3LjM5IDE3LjM0NCAwIDAgMS0uNjkyLS4xODkgNC44MjIgNC44MiAwIDAgMC0uMDc3LjQ5NGwuNjcuMTU3YzMuMTA4LjY4MiA0LjEzNiAxLjM5MSA0LjMwOSAxLjUyNWExLjE0NSAxLjE0MiAwIDAgMC0uMDkuNDQyIDEuMTYgMS4xNTggMCAwIDAgMS4zNzggMS4xMzJjLjA5Ni40NjcuNDA2LjgyMS44NzkgMS4wMDNhMS4xNjUgMS4xNjIgMCAwIDAgLjQxNS4wOGMuMDkgMCAuMTc5LS4wMTIuMjY2LS4wMzQuMDg2LjIyLjI4Mi40OTMuNzIyLjY2OGExLjIzMyAxLjIzIDAgMCAwIC40NTcuMDk0Yy4xMjIgMCAuMjQxLS4wMjIuMzU1LS4wNjNhMS4zNzMgMS4zNyAwIDAgMCAxLjI2OS44NDFjLjM3LjAwMi43MjYtLjE0Ny45ODUtLjQxLjIyMS4xMjEuNjg4LjM0MSAxLjE2My4zNDEuMDYgMCAuMTE4LS4wMDIuMTc1LS4wMS40Ny0uMDU5LjY4OS0uMjQuNzg5LS4zODJhLjU3MS41NyAwIDAgMCAuMDQ4LS4wNzhjLjExLjAzMi4yMzQuMDU4LjM3My4wNTguMjU1IDAgLjUwMS0uMDg2Ljc1LS4yNjUuMjQ0LS4xNzQuNDE4LS40MjQuNDQ0LS42Mzd2LS4wMWMuMDgzLjAxNy4xNjcuMDI2LjI1MS4wMjYuMjY1IDAgLjUyNy0uMDgyLjc3My0uMjQyLjQ4LS4zMS41NjItLjcxNS41NTQtLjk4YTEuMjggMS4yNzkgMCAwIDAgLjk3OC0uMTk0IDEuMDQgMS4wNCAwIDAgMCAuNTAyLS44MDggMS4wODggMS4wODUgMCAwIDAtLjE2LS42NTNjLjgwNC0uMzQyIDIuNjM2LTEuMDAzIDQuNzk1LTEuNDgzYTQuNzM0IDQuNzIxIDAgMCAwLS4wNjctLjQ5MiAyNy43NDIgMjcuNjY3IDAgMCAwLTUuMDQ5IDEuNjJ6bTUuMTIzLS43NjNjMCA0LjAyNy01LjE2NiA3LjI5My0xMS41MzcgNy4yOTMtNi4zNzIgMC0xMS41MzgtMy4yNjYtMTEuNTM4LTcuMjkzIDAtNC4wMjggNS4xNjUtNy4yOTMgMTEuNTM5LTcuMjkzIDYuMzcxIDAgMTEuNTM3IDMuMjY1IDExLjUzNyA3LjI5M3ptLjQ2LjAwNGMwLTQuMjcyLTUuMzc0LTcuNzU1LTEyLTcuNzU1Uy4wMDIgNy4yNzcuMDAyIDExLjU1TDAgMTIuMDA0YzAgNC41MzMgNC42OTUgOC4yMDMgMTEuOTk5IDguMjAzIDcuMzQ3IDAgMTItMy42NyAxMi04LjIwNHoiLz48L3N2Zz4=',
+  'picpay':'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMjFDMjVFIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+UGljUGF5PC90aXRsZT48cGF0aCBkPSJNMTYuNDYzIDEuNTg3djcuNTM3SDI0VjEuNTg3em0xLjI1NiAxLjI1Nmg1LjAyNXY1LjAyNWgtNS4wMjV6bTEuMjU2IDEuMjU2djIuNTEzaDIuNTEzVjQuMDk5ek0zLjc3IDUuMzU1VjguNTNoMy4zNzZjMi4xNDIgMCAzLjM1OCAxLjA0IDMuMzU4IDIuOTM5IDAgMS45NDctMS4yMTYgMy4wMTEtMy4zNTggMy4wMTFIMy43NjlWOC41M0gwdjEzLjg4NGgzLjc2OXYtNC43NmgzLjU3YzQuMzMzIDAgNi44MTUtMi4zNTIgNi44MTUtNi4zMiAwLTMuNzcxLTIuNDgyLTUuOTc4LTYuODE0LTUuOTc4WiIvPjwvc3ZnPg==',
+  'neon':'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMzRENTlBIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+TmVvbjwvdGl0bGU+PHBhdGggZD0iTTI0IDBWMjRsLTkuMzY1LTguMDQ1VjI0SDBWMFpNMi45NDIgMjEuMDg3aDguNzUxVjkuNTYzbDkuMzY1IDguMjA0VjIuOTE5TDIuOTQyIDIuOTE0WiIvPjwvc3ZnPg=='
+};
+
+function getBank(id){ return BANCOS.find(b=>b.id===id) || null; }
+function bancoBadge(id){
+  const b = getBank(id); if(!b) return '';
+  const lg = BANK_LOGOS[id];
+  if(lg) return '<img class="banco-logo" src="'+lg+'" title="'+esc(b.nome)+'" alt="'+esc(b.nome)+'">';
+  return '<span class="banco-badge" style="background:'+b.cor+'" title="'+esc(b.nome)+'">'+esc(b.sigla)+'</span>';
+}
+function bankName(id){ const b=getBank(id); return b ? b.nome : '—'; }
+function fillBancoSelect(){
+  const opts = '<option value="">Banco (conta)</option>' + BANCOS.map(b=>'<option value="'+b.id+'">'+esc(b.nome)+'</option>').join('');
+  const sel = document.getElementById('banco'); if(sel) sel.innerHTML = opts;
+  const ss = document.getElementById('settleBanco'); if(ss) ss.innerHTML = opts;
+  const ms = document.getElementById('moveBanco'); if(ms) ms.innerHTML = opts;
+}
+function syncBancoField(){
+  const m = document.getElementById('metodo'); if(!m) return;
+  const f = document.getElementById('bancoField');
+  if(f) f.style.display = (m.value==='dinheiro') ? 'none' : 'block';
+}
+function syncSettleBanco(){
+  const m = document.getElementById('settleMetodo'); if(!m) return;
+  const f = document.getElementById('settleBancoField');
+  if(f) f.style.display = (m.value==='dinheiro') ? 'none' : 'block';
+}
+function syncMoveBanco(){
+  const m = document.getElementById('moveMetodo'); if(!m) return;
+  const f = document.getElementById('moveBancoField');
+  if(f) f.style.display = (m.value==='dinheiro') ? 'none' : 'block';
+}
+let currentTab = 'receitas';
+let editingId = null;
+let editingDebtId = null;
+let data = {};
+
+function storageKey(){ return 'financas_dados_' + currentUser.id + '_v1'; }
+function load(){
+  if(!currentUser) return {};
+  try{
+    const raw = localStorage.getItem(storageKey());
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function save(){ if(currentUser) localStorage.setItem(storageKey(), JSON.stringify(data)); }
+function monthKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function currentKey(){ return monthKey(currentMonth); }
+function monthRecords(){ return data[currentKey()] || []; }
+function saveRecords(recs){ data[currentKey()] = recs; save(); }
+// ---- Lançamentos FIXADOS (aparecem em todos os meses) ----
+let fixoAtivo = false;
+function fixedRecords(){ return data._fixed || []; }
+function saveFixed(list){ data._fixed = list; save(); }
+function hiddenInMonth(id, mk){ return (data._hidden||[]).includes(String(id)+'-'+mk); }
+function fixedForMonth(mk){ return fixedRecords().filter(r=>(!r.fixMes || r.fixMes<=mk) && !hiddenInMonth(r.id, mk)); }
+function hideFromMonth(id, mk){ const h=data._hidden||[]; const s=String(id)+'-'+mk; if(!h.includes(s)){ data._hidden=h.concat([s]); save(); } }
+function clearHiddenForId(id){ if(data._hidden){ data._hidden = data._hidden.filter(x=>x.split('-')[0]!==String(id)); save(); } }
+function findRecordById(id){
+  const r = (data[currentKey()]||[]).find(x=>String(x.id)===String(id));
+  if(r) return {rec:r, fixed:false};
+  const f = fixedRecords().find(x=>String(x.id)===String(id));
+  return f ? {rec:f, fixed:true} : null;
+}
+function removeRecordById(id){
+  if((data[currentKey()]||[]).some(x=>String(x.id)===String(id))){
+    data[currentKey()] = (data[currentKey()]||[]).filter(x=>String(x.id)!==String(id)); save(); return;
+  }
+  if(fixedRecords().some(x=>String(x.id)===String(id))){
+    saveFixed(fixedRecords().filter(x=>String(x.id)!==String(id)));
+  }
+}
+function updateRecordById(id, upd){
+  if((data[currentKey()]||[]).some(x=>String(x.id)===String(id))){
+    data[currentKey()] = (data[currentKey()]||[]).map(x=>String(x.id)===String(id) ? {...x, ...upd} : x);
+    save(); return;
+  }
+  if(fixedRecords().some(x=>String(x.id)===String(id))){
+    saveFixed(fixedRecords().map(x=>String(x.id)===String(id) ? {...x, ...upd} : x));
+  }
+}
+function toggleFixBtn(){
+  fixoAtivo = !fixoAtivo;
+  const b = document.getElementById('btnFixo');
+  if(!b) return;
+  b.classList.toggle('active', fixoAtivo);
+  b.textContent = fixoAtivo ? '📌 Fixo ON' : '📌 Fixo';
+}
+function applyFixNew(rec){
+  if(!fixoAtivo) return;
+  data[currentKey()] = (data[currentKey()]||[]).filter(r=>String(r.id)!==String(rec.id));
+  rec.fixado = true; rec.fixMes = currentKey();
+  saveFixed(fixedRecords().concat([rec]));
+}
+document.getElementById('btnFixo').onclick = toggleFixBtn;
+function toggleFix(id){
+  const cur = (data[currentKey()]||[]).find(x=>String(x.id)===String(id));
+  if(cur){
+    data[currentKey()] = (data[currentKey()]||[]).filter(x=>String(x.id)!==String(id));
+    cur.fixado = true; cur.fixMes = currentKey();
+    saveFixed(fixedRecords().concat([cur]));
+    toast('📌 Fixado — aparece em todos os meses');
+    render(); return;
+  }
+  const f = fixedRecords().find(x=>String(x.id)===String(id));
+  if(f){
+    saveFixed(fixedRecords().filter(x=>String(x.id)!==String(id)));
+    f.fixado = false;
+    const mk = f.fixMes || currentKey();
+    (data[mk] = data[mk]||[]).push(f);
+    save();
+    toast('📍 Desfixado');
+    render();
+  }
+}
+function monthTotFixed(){
+  return (data[currentKey()]||[]).concat(fixedForMonth(currentKey()));
+}
+function debts(){
+  const list = data._debts || [];
+  let changed = false;
+  list.forEach(d=>{
+    if(typeof d.id==='string' && d.id.charAt(0)==='d'){ d.id = parseInt(d.id.slice(1)) || Date.now(); changed = true; }
+    if(d.pagos && !d.quitado){
+      const q = {};
+      const n = (d.nParcelas && d.nParcelas>=1) ? d.nParcelas : 1;
+      const inicio = d.inicio || currentKey();
+      const periodo = d.periodo || 1;
+      (d.pagos||[]).forEach(mk=>{
+        if(n===1){ q[mk] = d.valor; return; }
+        for(let p=1;p<=n;p++){
+          const m = addMonthsKey(inicio, (p-1)*periodo);
+          if(m===mk){ q[mk] = parcelValue(d,p); break; }
+        }
+      });
+      d.quitado = q;
+      delete d.pagos;
+      changed = true;
+    }
+  });
+  if(changed) saveDebts(list);
+  return list;
+}
+function saveDebts(list){ data._debts = list; save(); }
+
+// ====== MÊS ======
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function fmtMonth(d){ return MESES[d.getMonth()] + ' de ' + d.getFullYear(); }
+function renderMonthLabel(){
+  document.getElementById('monthLabel').textContent = fmtMonth(currentMonth);
+  const ms = document.getElementById('monthSelect');
+  const yi = document.getElementById('yearInput');
+  if(ms) ms.value = currentMonth.getMonth()+1;
+  if(yi) yi.value = currentMonth.getFullYear();
+}
+document.getElementById('prevMonth').onclick = ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1, 1); renderMonthLabel(); render(); };
+document.getElementById('nextMonth').onclick = ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1); renderMonthLabel(); render(); };
+(function(){
+  const ms = document.getElementById('monthSelect');
+  ms.innerHTML = MESES.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  ms.onchange = (e)=>{ currentMonth = new Date(currentMonth.getFullYear(), parseInt(e.target.value)-1, 1); renderMonthLabel(); render(); };
+  document.getElementById('yearInput').onchange = (e)=>{ const y=parseInt(e.target.value); if(y>=1900 && y<=3000){ currentMonth = new Date(y, currentMonth.getMonth(), 1); renderMonthLabel(); render(); } };
+})();
+
+// ====== TABS ======
+function setTab(tab){
+  currentTab = tab;
+  editingId = null;
+  editingDebtId = null;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  const showDeb = tab==='debitos';
+  const showExtrato = tab==='extrato';
+  const f = document.getElementById('formSection'); if(f) f.style.display = (showDeb||showExtrato) ? 'none' : 'block';
+  const tw = document.getElementById('tableWrap'); if(tw) tw.style.display = (showDeb||showExtrato) ? 'none' : 'block';
+  const ds = document.getElementById('debitSection'); if(ds) ds.style.display = showDeb ? 'block' : 'none';
+  const es = document.getElementById('extratoSection'); if(es) es.style.display = showExtrato ? 'block' : 'none';
+  if(tab==='receitas'||tab==='despesas'){
+    document.getElementById('formTitle').textContent = (tab==='receitas') ? '＋ Nova Receita' : '－ Nova Despesa';
+    document.getElementById('btnAdd').textContent = 'Adicionar';
+    document.getElementById('btnAddNew').style.display='none';
+    document.getElementById('btnCancel').style.display='none';
+    clearForm();
+  }
+  render();
+}
+let currentSection = 'painel';
+function setSection(sec){
+  currentSection = sec;
+  document.querySelectorAll('.side-item[data-sec]').forEach(b=>b.classList.toggle('active', b.dataset.sec===sec));
+  ['painel','transacoes','bancos','categorias','metas'].forEach(s=>{
+    const el = document.getElementById('sec-'+s);
+    if(el) el.style.display = (s===sec) ? 'block' : 'none';
+  });
+  render();
+}
+document.querySelectorAll('.side-item[data-sec]').forEach(b=>{ b.onclick = ()=> setSection(b.dataset.sec); });
+document.querySelectorAll('.tab').forEach(tab=>{ tab.onclick = ()=> setTab(tab.dataset.tab); });
+
+// ====== CRUD ======
+function parseValor(str){
+  if(str==null) return NaN;
+  let s = String(str).trim().replace(/[^\d.,]/g,'');
+  if(s.includes(',')){ s = s.replace(/\./g,'').replace(',', '.'); }
+  return parseFloat(s);
+}
+function addRecord(){
+  const desc = document.getElementById('descricao').value.trim();
+  let val = parseValor(document.getElementById('valor').value);
+  if(document.getElementById('valorBase').value){ val = computeValor(); }
+  else if(document.getElementById('percent').value!==''){ val = pctOf(baseForPercent('valor'), 'percent'); }
+  const cat = document.getElementById('categoria').value.trim();
+  const met = document.getElementById('metodo').value || 'pix';
+  const banco = document.getElementById('banco').value;
+  const dat = document.getElementById('data').value || new Date().toISOString().slice(0,10);
+  if(!desc || isNaN(val) || val <= 0){ alert('Preencha a descrição e um valor válido.'); return; }
+  const editingWas = !!editingId;
+  if(met==='credito'){
+    const parcelas = parseInt(document.getElementById('parcelas').value);
+    if(!parcelas || parcelas < 1){ alert('Informe em quantas vezes (parcelas) você pagou.'); return; }
+    addInstallments(desc, val, cat, dat, parcelas);
+  } else if(editingId){
+    updateRecordById(editingId, {descricao:desc, valor:val, categoria:cat, metodo:met, banco, data:dat});
+  } else {
+    const records = monthRecords();
+    const rec = {id:Date.now(), descricao:desc, valor:val, categoria:cat, metodo:met, banco, data:dat, tipo:currentTab};
+    records.push(rec);
+    saveRecords(records);
+    applyFixNew(rec);
+  }
+  editingId = null;
+  document.getElementById('btnAdd').textContent = 'Adicionar';
+  document.getElementById('btnAddNew').style.display='none';
+  document.getElementById('btnCancel').style.display='none';
+  clearForm();
+  render();
+  toast(editingWas ? '✅ Lançamento substituído com as alterações' : '✅ Lançamento adicionado');
+}
+// Adiciona um NOVO lançamento (mesmo estando no modo editar), sem substituir o editado
+function addNewRecord(){
+  const desc = document.getElementById('descricao').value.trim();
+  let val = parseValor(document.getElementById('valor').value);
+  if(document.getElementById('valorBase').value){ val = computeValor(); }
+  else if(document.getElementById('percent').value!==''){ val = pctOf(baseForPercent('valor'), 'percent'); }
+  const cat = document.getElementById('categoria').value.trim();
+  const met = document.getElementById('metodo').value || 'pix';
+  const banco = document.getElementById('banco').value;
+  const dat = document.getElementById('data').value || new Date().toISOString().slice(0,10);
+  if(!desc || isNaN(val) || val <= 0){ alert('Preencha a descrição e um valor válido.'); return; }
+  if(met==='credito'){
+    const parcelas = parseInt(document.getElementById('parcelas').value);
+    if(!parcelas || parcelas < 1){ alert('Informe em quantas vezes (parcelas) você pagou.'); return; }
+    addInstallments(desc, val, cat, dat, parcelas);
+  } else {
+    const records = monthRecords();
+    const rec = {id:Date.now(), descricao:desc, valor:val, categoria:cat, metodo:met, data:dat, tipo:currentTab};
+    records.push(rec);
+    saveRecords(records);
+    applyFixNew(rec);
+  }
+  editingId = null;
+  document.getElementById('btnAdd').textContent = 'Adicionar';
+  document.getElementById('btnAddNew').style.display='none';
+  document.getElementById('btnCancel').style.display='none';
+  clearForm();
+  render();
+}
+// Crédito: divide o valor em parcelas e espalha nos próximos meses (1ª parcela no próximo mês)
+function addInstallments(desc, val, cat, dat, n){
+  const base = Math.round((val/n)*100)/100;
+  const daySrc = parseInt((dat||'').split('-')[2]) || 1;
+  for(let p=1; p<=n; p++){
+    let pv = base;
+    if(p===n){ pv = Math.round((val - base*(n-1))*100)/100; } // última parcela absorve a sobra
+    const t = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+p, 1);
+    const mk = monthKey(t);
+    const lastDay = new Date(t.getFullYear(), t.getMonth()+1, 0).getDate();
+    const dd = Math.min(daySrc, lastDay);
+    const recs = data[mk] || [];
+    recs.push({id:Date.now()+p, descricao: desc + ' (parcela ' + p + '/' + n + ')', valor: pv, categoria: cat, metodo: 'credito', data: mk + '-' + String(dd).padStart(2,'0'), tipo: 'despesas'});
+    data[mk] = recs;
+  }
+  save();
+}
+document.getElementById('metodo').onchange = ()=>{
+  const isCred = document.getElementById('metodo').value==='credito';
+  document.getElementById('parcelasField').style.display = isCred ? 'block':'none';
+};
+// ---- Valor por % do saldo ----
+function currentSaldo(){
+  let rec=0, des=0;
+  monthTotFixed().forEach(r=>{ r.tipo==='receitas' ? rec+=r.valor : des+=r.valor; });
+  return {rec, des, saldo: rec-des};
+}
+function baseAmount(){
+  const b = document.getElementById('valorBase').value;
+  const s = currentSaldo();
+  const c = calcBalances();
+  const m = {
+    'mes': {amt:s.saldo, label:'Saldo do mês'},
+    'conta': {amt:c.tot, label:'Total da conta'},
+    'meta': {amt:c.tot + c.saldoDividas, label:'Meta'},
+    'quitado': {amt:c.tot - c.devo + c.receber, label:'Saldo quitado total'},
+    'receitas': {amt:s.rec, label:'Saldo de receitas'},
+    'despesas': {amt:s.des, label:'Saldo de despesas'},
+    'dividas': {amt:c.saldoDividas, label:'Dívidas (a receber − a pagar)'},
+    'recebertudo': {amt:c.monthTot + c.receberMes, label:'Saldo se eu receber tudo'},
+    'pagartudo': {amt:c.monthTot - c.devoMes, label:'Saldo se eu pagar tudo'}
+  };
+  return m[b] || null;
+}
+// ====== MÁSCARA DE MOEDA: mostra a vírgula enquanto digita (pt-BR) ======
+function fmtMoney(n){
+  if(isNaN(n)) return '';
+  return (Math.round(n*100)/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+const moneyBase = {}; // guarda o valor digitado (base) por campo
+function rememberBase(id){
+  const el = document.getElementById(id);
+  moneyBase[id] = parseValor(el.value);
+}
+function baseForPercent(fieldId){
+  const b = moneyBase[fieldId];
+  if(b!=null && !isNaN(b)) return b;
+  return parseValor(document.getElementById(fieldId).value);
+}
+function moneyMask(el){
+  let s = String(el.value).replace(/[^\d]/g,'');
+  if(s===''){ el.value=''; return; }
+  const intPart = s.slice(0, -2).replace(/^0+(?=\d)/,'') || '0';
+  const cents = s.slice(-2).padStart(2,'0');
+  const intFmt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  el.value = intFmt + ',' + cents;
+}
+function bindMoneyMask(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('input', ()=>{ moneyMask(el); rememberBase(id); });
+  el.addEventListener('focus', ()=>{ if(el.value==='') el.value='0,00'; el.select(); });
+  el.addEventListener('blur', ()=>{ if(el.value && (el.value==='0,00' || el.value==='0,')) el.value=''; });
+}
+bindMoneyMask('valor');
+fillBancoSelect();
+bindMoneyMask('debValor');
+bindMoneyMask('settleInput');
+
+function pctOf(v, pctInputId){
+  const pct = parseFloat(document.getElementById(pctInputId).value);
+  const p = (!isNaN(pct) && document.getElementById(pctInputId).value!=='') ? pct : 100;
+  return Math.round(v * p / 100 * 100)/100;
+}
+function computeValor(){
+  const base = baseAmount();
+  if(!base) return null;
+  return pctOf(base.amt, 'percent');
+}
+function refreshValor(){
+  const valorEl = document.getElementById('valor');
+  const hintEl = document.getElementById('valorHint');
+  // O campo de valor SEMPRE fica habilitado para digitação
+  valorEl.removeAttribute('disabled');
+  valorEl.removeAttribute('readonly');
+  valorEl.style.pointerEvents = '';
+  const base = baseAmount();
+  const pctStr = document.getElementById('percent').value;
+  const hasPct = pctStr!=='';
+  if(!base){
+    // Digitação manual: se houver %, calcula sobre o valor digitado (base mantida)
+    let typed = moneyBase['valor'];
+    if(typed==null || isNaN(typed)) typed = parseValor(valorEl.value);
+    if(hasPct && !isNaN(typed)){
+      const v = pctOf(typed, 'percent');
+      valorEl.value = fmtMoney(v);
+      if(hintEl) hintEl.textContent = fmtCurrency(v) + ' = ' + pctStr + '% de ' + fmtCurrency(typed) + ' (valor digitado)';
+    } else {
+      if(moneyBase['valor']!=null && !isNaN(moneyBase['valor'])) valorEl.value = fmtMoney(moneyBase['valor']);
+      if(hintEl) hintEl.textContent='';
+    }
+    return;
+  }
+  // Opção automática: preenche o valor (mantém editável)
+  moneyBase['valor'] = null;
+  const p = hasPct ? parseFloat(pctStr) : 100;
+  const v = pctOf(base.amt, 'percent');
+  if(!isNaN(v)) valorEl.value = fmtMoney(v);
+  if(hintEl) hintEl.textContent = (isNaN(v) ? '' : fmtCurrency(v)) + ' = ' + p + '% de ' + fmtCurrency(base.amt) + ' (' + base.label + ')';
+}
+document.getElementById('valorBase').onchange = refreshValor;
+document.getElementById('percent').oninput = refreshValor;
+// ---- Valor por % do saldo (Dívidas) ----
+function debBaseAmount(){
+  const b = document.getElementById('debValorBase').value;
+  const s = currentSaldo();
+  const c = calcBalances();
+  const m = {
+    'mes': {amt:s.saldo, label:'Saldo do mês'},
+    'conta': {amt:c.tot, label:'Total da conta'},
+    'meta': {amt:c.tot + c.saldoDividas, label:'Meta'},
+    'quitado': {amt:c.tot - c.devo + c.receber, label:'Saldo quitado total'},
+    'receitas': {amt:s.rec, label:'Saldo de receitas'},
+    'despesas': {amt:s.des, label:'Saldo de despesas'},
+    'dividas': {amt:c.saldoDividas, label:'Dívidas (a receber − a pagar)'},
+    'recebertudo': {amt:c.monthTot + c.receberMes, label:'Saldo se eu receber tudo'},
+    'pagartudo': {amt:c.monthTot - c.devoMes, label:'Saldo se eu pagar tudo'}
+  };
+  return m[b] || null;
+}
+function computeDebValor(){
+  const base = debBaseAmount(); if(!base) return null;
+  return pctOf(base.amt, 'debPercent');
+}
+function refreshDebValor(){
+  const valorEl = document.getElementById('debValor');
+  const hintEl = document.getElementById('debValorHint');
+  // O campo de valor da dívida SEMPRE fica habilitado para digitação
+  valorEl.removeAttribute('disabled');
+  valorEl.removeAttribute('readonly');
+  valorEl.style.pointerEvents = '';
+  const base = debBaseAmount();
+  const pctStr = document.getElementById('debPercent').value;
+  const hasPct = pctStr!=='';
+  if(!base){
+    // Digitação manual: se houver %, calcula sobre o valor digitado (base mantida)
+    let typed = moneyBase['debValor'];
+    if(typed==null || isNaN(typed)) typed = parseValor(valorEl.value);
+    if(hasPct && !isNaN(typed)){
+      const v = pctOf(typed, 'debPercent');
+      valorEl.value = fmtMoney(v);
+      if(hintEl) hintEl.textContent = fmtCurrency(v) + ' = ' + pctStr + '% de ' + fmtCurrency(typed) + ' (valor digitado)';
+    } else {
+      if(moneyBase['debValor']!=null && !isNaN(moneyBase['debValor'])) valorEl.value = fmtMoney(moneyBase['debValor']);
+      if(hintEl) hintEl.textContent='';
+    }
+    return;
+  }
+  // Opção automática: preenche o valor (mantém editável)
+  moneyBase['debValor'] = null;
+  const p = hasPct ? parseFloat(pctStr) : 100;
+  const v = pctOf(base.amt, 'debPercent');
+  if(!isNaN(v)) valorEl.value = fmtMoney(v);
+  if(hintEl) hintEl.textContent = (isNaN(v) ? '' : fmtCurrency(v)) + ' = ' + p + '% de ' + fmtCurrency(base.amt) + ' (' + base.label + ')';
+}
+document.getElementById('debValorBase').onchange = refreshDebValor;
+document.getElementById('debPercent').oninput = refreshDebValor;
+// ====== MENU DE VALOR: só mostra as opções ao clicar na setinha ▾ ======
+function initValorDropdown(arrowId, selectId, optionsId){
+  const arrow = document.getElementById(arrowId);
+  const select = document.getElementById(selectId);
+  const optsEl = document.getElementById(optionsId);
+  function build(){
+    optsEl.innerHTML = Array.from(select.options).map((o,i)=>{
+      let t = o.text;
+      return '<button type="button" class="valor-item'+(o.selected?' sel':'')+'" data-i="'+i+'">'+esc(t)+'</button>';
+    }).join('');
+  }
+  arrow.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const opening = optsEl.style.display!=='block';
+    document.querySelectorAll('.valor-options').forEach(x=>x.style.display='none');
+    if(opening){ build(); optsEl.style.display='block'; }
+  });
+  optsEl.addEventListener('click', (e)=>{
+    const b = e.target.closest('.valor-item');
+    if(!b) return;
+    select.selectedIndex = parseInt(b.dataset.i);
+    if(typeof select.onchange==='function') select.onchange();
+    optsEl.style.display='none';
+  });
+}
+initValorDropdown('valorArrowBtn','valorBase','valorOptions');
+initValorDropdown('debValorArrowBtn','debValorBase','debValorOptions');
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.valor-options') && !e.target.closest('.valor-arrow')){
+    document.querySelectorAll('.valor-options').forEach(x=>x.style.display='none');
+  }
+});
+function clearForm(){
+  fixoAtivo = false;
+  const bf = document.getElementById('btnFixo'); if(bf){ bf.classList.remove('active'); bf.textContent='📌 Fixo'; }
+  document.getElementById('descricao').value='';
+  document.getElementById('valor').value='';
+  document.getElementById('valor').removeAttribute('disabled');
+  document.getElementById('valorBase').value='';
+  document.getElementById('percent').value='';
+  const vh = document.getElementById('valorHint'); if(vh) vh.textContent='';
+  document.getElementById('categoria').value='';
+  document.getElementById('metodo').value='pix';
+  const bn = document.getElementById('banco'); if(bn) bn.value='';
+  document.getElementById('parcelas').value='';
+  document.getElementById('parcelasField').style.display='none';
+  const dat = document.getElementById('data');
+  if(dat){
+    const t = new Date();
+    dat.value = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  }
+  syncBancoField();
+}
+function editRecord(id){
+  const found = findRecordById(id);
+  if(!found) return;
+  const r = found.rec;
+  setTab(r.tipo === 'despesas' ? 'despesas' : 'receitas');
+  editingId = id;
+  document.getElementById('descricao').value = r.descricao;
+  document.getElementById('valor').value = r.valor;
+  document.getElementById('categoria').value = r.categoria;
+  document.getElementById('metodo').value = r.metodo || 'pix';
+  const bn = document.getElementById('banco'); if(bn) bn.value = r.banco || '';
+  document.getElementById('parcelasField').style.display = (r.metodo==='credito') ? 'block':'none';
+  syncBancoField();
+  document.getElementById('data').value = r.data;
+  document.getElementById('formTitle').textContent = (r.tipo==='receitas') ? '✏️ Editar Receita' : '✏️ Editar Despesa';
+  document.getElementById('btnAdd').textContent = '💾 Substituir lançamento';
+  document.getElementById('btnAddNew').textContent = (r.tipo==='receitas') ? '➕ Adicionar nova Receita' : '➕ Adicionar nova Despesa';
+  document.getElementById('btnAddNew').style.display='inline-block';
+  document.getElementById('btnCancel').style.display='inline-block';
+  document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
+}
+document.getElementById('btnCancel').onclick = ()=>{
+  editingId=null; clearForm();
+  document.getElementById('btnAdd').textContent='Adicionar';
+  document.getElementById('btnAddNew').style.display='none';
+  document.getElementById('btnCancel').style.display='none';
+  render();
+};
+document.getElementById('btnAddNew').onclick = addNewRecord;
+function deleteRecord(id){
+  if(!confirm('Excluir este registro?')) return;
+  removeRecordById(id);
+  render();
+}
+document.getElementById('btnAdd').onclick = addRecord;
+
+// ====== CRUD DÍVIDAS ======
+function addDebt(){
+  const quem = document.getElementById('debQuem').value.trim();
+  const tipo = document.getElementById('debTipo').value;
+  let val = parseValor(document.getElementById('debValor').value);
+  if(document.getElementById('debValorBase').value){ val = computeDebValor(); }
+  else if(document.getElementById('debPercent').value!==''){ val = pctOf(baseForPercent('debValor'), 'debPercent'); }
+  const obs = document.getElementById('debObs').value.trim();
+  const nParcelas = (document.getElementById('debForma').value==='parcelado') ? (parseInt(document.getElementById('debParcelas').value)||1) : 1;
+  const di = document.getElementById('debInicio').value;
+  const inicio = di ? di.slice(0,7) : currentKey();
+  const num = parseInt(document.getElementById('debPeriodoNum').value) || 1;
+  const un = document.getElementById('debPeriodoUnidade').value;
+  const periodo = (un === 'ano') ? num*12 : num;
+  if(!quem || isNaN(val) || val <= 0){ alert('Preencha a pessoa e um valor válido.'); return; }
+  const data = {id: editingDebtId || Date.now(), quem, tipo, valor: val, obs, nParcelas, inicio, periodo, fixo: debFixoAtivo, vence: document.getElementById('debVence').value};
+  let list = debts();
+  if(editingDebtId){
+    list = list.map(d=>String(d.id)===String(editingDebtId) ? {...d, ...data} : d);
+  } else {
+    list.push(data);
+  }
+  saveDebts(list);
+  editingDebtId = null;
+  document.getElementById('btnDebAdd').textContent = 'Adicionar';
+  document.getElementById('btnDebAddNew').style.display='none';
+  document.getElementById('btnDebCancel').style.display='none';
+  clearDebForm();
+  render();
+}
+// Adiciona uma NOVA dívida (mesmo no modo editar), sem substituir a editada
+function addDebtNew(){
+  const quem = document.getElementById('debQuem').value.trim();
+  const tipo = document.getElementById('debTipo').value;
+  let val = parseValor(document.getElementById('debValor').value);
+  if(document.getElementById('debValorBase').value){ val = computeDebValor(); }
+  else if(document.getElementById('debPercent').value!==''){ val = pctOf(baseForPercent('debValor'), 'debPercent'); }
+  const obs = document.getElementById('debObs').value.trim();
+  const nParcelas = (document.getElementById('debForma').value==='parcelado') ? (parseInt(document.getElementById('debParcelas').value)||1) : 1;
+  const di = document.getElementById('debInicio').value;
+  const inicio = di ? di.slice(0,7) : currentKey();
+  const num = parseInt(document.getElementById('debPeriodoNum').value) || 1;
+  const un = document.getElementById('debPeriodoUnidade').value;
+  const periodo = (un === 'ano') ? num*12 : num;
+  if(!quem || isNaN(val) || val <= 0){ alert('Preencha a pessoa e um valor válido.'); return; }
+  const list = debts();
+  list.push({id: Date.now(), quem, tipo, valor: val, obs, nParcelas, inicio, periodo, fixo: debFixoAtivo, vence: document.getElementById('debVence').value});
+  saveDebts(list);
+  editingDebtId = null;
+  document.getElementById('btnDebAdd').textContent = 'Adicionar';
+  document.getElementById('btnDebAddNew').style.display='none';
+  document.getElementById('btnDebCancel').style.display='none';
+  clearDebForm();
+  render();
+}
+function clearDebForm(){
+  document.getElementById('debQuem').value='';
+  document.getElementById('debTipo').value='receber';
+  document.getElementById('debValor').value='';
+  document.getElementById('debValor').removeAttribute('disabled');
+  const dbv = document.getElementById('debValorBase'); if(dbv) dbv.value='';
+  const dbp = document.getElementById('debPercent'); if(dbp) dbp.value='';
+  const dvh = document.getElementById('debValorHint'); if(dvh) dvh.textContent='';
+  document.getElementById('debObs').value='';
+  const dfC = document.getElementById('debForma'); if(dfC) dfC.value='avista';
+  const dpfC = document.getElementById('debParceladoFields'); if(dpfC) dpfC.style.display='none';
+  const diC = document.getElementById('debInicio'); if(diC) diC.value = currentKey() + '-01';
+  document.getElementById('debParcelas').value='';
+  document.getElementById('debPeriodoNum').value='1';
+  document.getElementById('debPeriodoUnidade').value='mes';
+  const dvC = document.getElementById('debVence'); if(dvC) dvC.value = defaultVenc();
+  debFixoAtivo = false;
+  const bfD = document.getElementById('btnDebFixo'); if(bfD){ bfD.classList.remove('active'); bfD.textContent='📌 Fixo'; }
+}
+function editDebt(id){
+  const d = debts().find(x=>String(x.id)===String(id)); if(!d) return;
+  editingDebtId = id;
+  document.getElementById('debQuem').value=d.quem;
+  document.getElementById('debTipo').value=d.tipo;
+  document.getElementById('debValor').value=d.valor;
+  document.getElementById('debValor').removeAttribute('disabled');
+  const dbvE = document.getElementById('debValorBase'); if(dbvE) dbvE.value='';
+  const dbpE = document.getElementById('debPercent'); if(dbpE) dbpE.value='';
+  const dvhE = document.getElementById('debValorHint'); if(dvhE) dvhE.textContent='';
+  document.getElementById('debObs').value=d.obs||'';
+  const nPar = d.nParcelas||1;
+  const isPar = nPar>1;
+  const dfE = document.getElementById('debForma'); if(dfE) dfE.value = isPar ? 'parcelado':'avista';
+  const dpfE = document.getElementById('debParceladoFields'); if(dpfE) dpfE.style.display = isPar ? 'block':'none';
+  document.getElementById('debParcelas').value = isPar ? nPar : '';
+  const diE = document.getElementById('debInicio'); if(diE) diE.value = (d.inicio||currentKey()) + '-01';
+  const dvE = document.getElementById('debVence'); if(dvE) dvE.value = d.vence || defaultVenc();
+  const p = d.periodo || 1;
+  if(p % 12 === 0){ document.getElementById('debPeriodoNum').value = p/12; document.getElementById('debPeriodoUnidade').value = 'anos'; }
+  else { document.getElementById('debPeriodoNum').value = p; document.getElementById('debPeriodoUnidade').value = 'mes'; }
+  document.getElementById('btnDebAdd').textContent='💾 Substituir dívida';
+  debFixoAtivo = !!d.fixo;
+  const bfD = document.getElementById('btnDebFixo'); if(bfD){ bfD.classList.toggle('active', debFixoAtivo); bfD.textContent = debFixoAtivo ? '📌 Fixo ON' : '📌 Fixo'; }
+  document.getElementById('btnDebAddNew').style.display='inline-block';
+  document.getElementById('btnDebCancel').style.display='inline-block';
+  document.getElementById('debitSection').scrollIntoView({behavior:'smooth'});
+}
+function deleteDebt(id){
+  if(!confirm('Excluir esta anotação?')) return;
+  saveDebts(debts().filter(d=>String(d.id)!==String(id)));
+  render();
+}
+let debFixoAtivo = false;
+function toggleDebFixo(){
+  debFixoAtivo = !debFixoAtivo;
+  const b = document.getElementById('btnDebFixo'); if(!b) return;
+  b.classList.toggle('active', debFixoAtivo);
+  b.textContent = debFixoAtivo ? '📌 Fixo ON' : '📌 Fixo';
+}
+document.getElementById('btnDebFixo').onclick = toggleDebFixo;
+document.getElementById('btnDebAdd').onclick = addDebt;
+document.getElementById('btnDebAddNew').onclick = addDebtNew;
+document.getElementById('btnDebCancel').onclick = ()=>{
+  editingDebtId=null; clearDebForm();
+  document.getElementById('btnDebAdd').textContent='Adicionar';
+  document.getElementById('btnDebAddNew').style.display='none';
+  document.getElementById('btnDebCancel').style.display='none';
+  render();
+};
+
+// ====== RENDER ======
+function fmtCurrency(v){
+  v = Number(v);
+  if(!isFinite(v)) v = 0;
+  return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+function render(){
+  const records = monthRecords();
+  const all = monthTotFixed();
+  renderSummary(all);
+  renderBalance();
+  renderTable(records);
+  renderBreakdown(all);
+  renderDebits();
+  renderExtrato(all);
+  renderMetas();
+  renderMonthLabel();
+}
+function renderExtrato(records){
+  const t = document.getElementById('extratoTitle');
+  if(t) t.textContent = '📄 Extrato de ' + fmtMonth(currentMonth) + ' — receitas e despesas juntas';
+  const all = records.slice().sort((a,b)=> ((a.data||'') < (b.data||'') ? -1 : 1));
+  let rec=0, des=0;
+  const body = document.getElementById('extratoBody');
+  if(all.length===0){
+    body.innerHTML = `<tr><td colspan="6"><div class="empty"><span class="emoji">📄</span>Sem lançamentos neste mês.</div></td></tr>`;
+  } else {
+    body.innerHTML = all.map(r=>{
+      if(r.tipo==='receitas') rec += r.valor; else des += r.valor;
+      const met = r.metodo==='dinheiro' ? 'Físico' : (r.metodo==='credito' ? 'Crédito' : 'Virtual');
+      return `<tr>
+        <td>${formatDate(r.data)}</td>
+        <td>${esc(r.descricao)}</td>
+        <td><span class="tag ${r.tipo}">${esc(r.categoria)}</span></td>
+        <td><span class="tag ${r.tipo}">${r.tipo==='receitas'?'Receita':'Despesa'}</span></td>
+        <td>${bancoBadge(r.banco)}${met}</td>
+        <td class="amount ${r.tipo==='receitas'?'positive':'negative'}">${r.tipo==='receitas'?'+':'−'}${fmtCurrency(r.valor)}</td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('extReceitas').textContent = fmtCurrency(rec);
+  document.getElementById('extDespesas').textContent = fmtCurrency(des);
+  document.getElementById('extSaldo').textContent = fmtCurrency(rec - des);
+  const mk = currentKey();
+  let dr=0, dd=0;
+  const dRows = debts().map(deb=>{
+    const due = debtDueMonth(deb, mk);
+    if(!due) return null;
+    if(deb.tipo==='receber') dr += due.remaining; else dd += due.remaining;
+    const parcel = due.fixo ? '📌 recorrente' : (due.n>1 ? (due.p + '/' + due.n) : '—');
+    return `<tr>
+      <td>${esc(deb.quem)}</td>
+      <td><span class="tag ${deb.tipo==='receber'?'receita':'despesa'}">${deb.tipo==='receber'?'A receber':'A pagar'}</span></td>
+      <td>${parcel}</td>
+      <td class="amount ${deb.tipo==='receber'?'positive':'negative'}">${deb.tipo==='receber'?'+':'−'}${fmtCurrency(due.remaining)}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+  document.getElementById('extratoDebBody').innerHTML = dRows || `<tr><td colspan="4"><div class="empty">Sem dívidas vencendo neste mês.</div></td></tr>`;
+  document.getElementById('extRecReceber').textContent = fmtCurrency(dr);
+  document.getElementById('extDebDevo').textContent = fmtCurrency(dd);
+}
+function calcBalances(){
+  let tot=0, din=0, pix=0;
+  Object.keys(data).forEach(m=>{
+    if(m==='_debts') return;
+    (data[m]||[]).forEach(r=>{
+      const v = r.tipo==='receitas' ? r.valor : -r.valor;
+      tot += v;
+      if((r.metodo||'pix')==='dinheiro') din += v; else pix += v;
+    });
+  });
+  const receber = debts().filter(d=>d.tipo==='receber').reduce((s,d)=>s+debtPending(d),0);
+  const devo = debts().filter(d=>d.tipo==='devo').reduce((s,d)=>s+debtPending(d),0);
+  // Valores do mês atualmente visto
+  const cm = currentKey();
+  let monthTot = 0, receberMes = 0, devoMes = 0;
+  (data[cm]||[]).concat(fixedRecords()).forEach(r=>{ if(r.tipo==='receitas') monthTot += r.valor; else monthTot -= r.valor; });
+  debts().forEach(d=>{
+    const due = debtDueMonth(d, cm);
+    if(!due) return;
+    if(d.tipo==='receber') receberMes += due.remaining; else devoMes += due.remaining;
+  });
+  const quitadoMes = monthTot - devoMes + receberMes;
+  const saldoDividas = receberMes - devoMes;
+  return {tot, din, pix, receber, devo, receberMes, devoMes, monthTot, quitadoMes, saldoDividas};
+}
+function renderBalance(){
+  const b = calcBalances();
+  document.getElementById('balTotal').textContent = fmtCurrency(b.tot);
+  document.getElementById('balDinheiro').textContent = fmtCurrency(b.din);
+  document.getElementById('balPix').textContent = fmtCurrency(b.pix);
+  // Saldo meta = saldo total na conta + saldo dívidas (a receber − a pagar do mês)
+  document.getElementById('balMeta').textContent = fmtCurrency(b.tot + b.saldoDividas);
+  // Saldo quitado total: tudo (todos os meses) − tudo que devo + tudo que vou receber
+  document.getElementById('balLiquidadoTotal').textContent = fmtCurrency(b.tot - b.devo + b.receber);
+  const reservado = metasReservado();
+  const bm = document.getElementById('balMetas'); if(bm) bm.textContent = fmtCurrency(reservado);
+  const bd = document.getElementById('balDisponivel'); if(bd) bd.textContent = fmtCurrency(b.tot - reservado);
+}
+function addMonthsKey(mk, delta){
+  const parts = mk.split('-').map(Number);
+  const d = new Date(parts[0], parts[1]-1+delta, 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+// Retorna o valor de uma parcela p (a última absorve os centavos)
+function parcelValue(deb, p){
+  const n = (deb.nParcelas && deb.nParcelas>=1) ? deb.nParcelas : 1;
+  const base = Math.round((deb.valor/n)*100)/100;
+  return (p===n) ? Math.round((deb.valor - base*(n-1))*100)/100 : base;
+}
+// Mês em que vence a parcela p
+function parcelMonth(deb, p){
+  const inicio = deb.inicio || currentKey();
+  const periodo = deb.periodo || 1;
+  return addMonthsKey(inicio, (p-1)*periodo);
+}
+// Parcela de uma dívida que vence no mês mk (null se não há ou já foi quitada)
+function debtDueMonth(deb, mk){
+  const n = (deb.nParcelas && deb.nParcelas>=1) ? deb.nParcelas : 1;
+  const q = deb.quitado || {};
+  const inicio = deb.inicio || currentKey();
+  if(deb.fixo){
+    if(diffMonths(inicio, mk) < 0) return null;
+    const paid = q[mk] || 0;
+    if(paid>=deb.valor) return null;
+    return {value: deb.valor, paid, remaining: Math.round((deb.valor-paid)*100)/100, p: diffMonths(inicio, mk)+1, n:Infinity, fixo:true};
+  }
+  if(n===1){
+    if(inicio!==mk) return null;
+    const paid = q[mk] || 0;
+    if(paid>=deb.valor) return null;
+    return {value: deb.valor, paid, remaining: Math.round((deb.valor-paid)*100)/100, p:1, n:1};
+  }
+  for(let p=1; p<=n; p++){
+    const m = parcelMonth(deb, p);
+    if(m===mk){
+      const v = parcelValue(deb, p);
+      const paid = q[m] || 0;
+      if(paid>=v) return null;
+      return {value: v, paid, remaining: Math.round((v-paid)*100)/100, p, n};
+    }
+  }
+  return null;
+}
+// Total ainda pendente de uma dívida (parcelas não quitadas)
+function diffMonths(from, to){
+  const [fy,fm]=String(from).split('-').map(Number);
+  const [ty,tm]=String(to).split('-').map(Number);
+  if(isNaN(fy)||isNaN(ty)) return 0;
+  return (ty*12+tm) - (fy*12+fm);
+}
+function debtPending(deb){
+  if(deb.fixo){
+    const mk = currentKey();
+    if(diffMonths(deb.inicio||currentKey(), mk) < 0) return 0;
+    return Math.max(0, Math.round((deb.valor - ((deb.quitado||{})[mk]||0))*100)/100);
+  }
+  const n = (deb.nParcelas && deb.nParcelas>=1) ? deb.nParcelas : 1;
+  const q = deb.quitado || {};
+  const inicio = deb.inicio || currentKey();
+  const periodo = deb.periodo || 1;
+  if(n===1) return Math.max(0, Math.round((deb.valor - (q[inicio]||0))*100)/100);
+  let pend = 0;
+  for(let p=1; p<=n; p++){
+    const m = addMonthsKey(inicio, (p-1)*periodo);
+    const v = parcelValue(deb, p);
+    pend += Math.max(0, Math.round((v - (q[m]||0))*100)/100);
+  }
+  return pend;
+}
+// ====== QUITAR PARCELA (VALOR TOTAL OU DIGITADO) ======
+let settleState = null;
+function settleDebt(id, mk){
+  const deb = debts().find(d=>String(d.id)===String(id));
+  if(!deb) return;
+  const due = debtDueMonth(deb, mk);
+  if(!due || due.remaining<=0) return;
+  settleState = {id, mk, tipo: deb.tipo};
+  const isRec = deb.tipo==='receber';
+  document.getElementById('settleTitle').textContent = isRec ? 'Marcar como recebido' : 'Marcar como pago';
+  document.getElementById('settleSub').textContent = deb.quem + ' — falta ' + fmtCurrency(due.remaining);
+  document.getElementById('settleTotal').textContent = isRec ? '💯 Recebido tudo' : '💯 Pago tudo';
+  document.getElementById('settlePartial').textContent = isRec ? '⌨️ Digitar quanto recebi' : '⌨️ Digitar quanto paguei';
+  const lbl = document.getElementById('settleInputLabel');
+  if(lbl) lbl.textContent = isRec ? 'Valor recebido' : 'Valor pago';
+  document.getElementById('settleInput').value = '';
+  const sm = document.getElementById('settleMetodo'); if(sm) sm.value='pix';
+  const sb = document.getElementById('settleBanco'); if(sb) sb.value='';
+  syncSettleBanco();
+  document.getElementById('settleInputWrap').style.display = 'none';
+  document.getElementById('settleMsg').textContent = '';
+  document.getElementById('settleOverlay').style.display = 'flex';
+  document.getElementById('settleInput').focus();
+}
+function closeSettle(){
+  document.getElementById('settleOverlay').style.display = 'none';
+  settleState = null;
+}
+function doSettle(val){
+  if(!settleState) return;
+  const {id, mk, tipo} = settleState;
+  const deb = debts().find(d=>String(d.id)===String(id));
+  const due = deb ? debtDueMonth(deb, mk) : null;
+  if(!deb || !due || due.remaining<=0){ closeSettle(); render(); return; }
+  const amount = Math.round(parseValor(val)*100)/100;
+  if(!amount || amount<=0){ document.getElementById('settleMsg').textContent = 'Digite um valor válido.'; return; }
+  const paid = Math.min(amount, due.remaining);
+  deb.quitado = deb.quitado || {};
+  deb.quitado[mk] = Math.round(((deb.quitado[mk]||0) + paid)*100)/100;
+  const partial = paid < due.remaining;
+  const recs = data[mk] || [];
+  recs.push({
+    id: Date.now(),
+    descricao: deb.quem + (partial ? ' (parcial)' : ''),
+    valor: paid,
+    categoria: deb.obs || 'Dívida',
+    metodo: (document.getElementById('settleMetodo')||{}).value || 'pix',
+    banco: (document.getElementById('settleBanco')||{}).value || '',
+    data: mk + '-01',
+    tipo: tipo==='receber' ? 'receitas' : 'despesas'
+  });
+  data[mk] = recs;
+  let list = debts();
+  if(debtPending(deb) <= 0){ list = list.filter(d=>String(d.id)!==String(id)); }
+  saveDebts(list);
+  closeSettle();
+  render();
+  toast((tipo==='receber' ? '✅ Movido para Receitas' : '✅ Movido para Despesas') + (partial ? ' (parcial)' : ''));
+}
+document.getElementById('settleTotal').onclick = ()=>{
+  if(!settleState) return;
+  const deb = debts().find(d=>String(d.id)===String(settleState.id));
+  const due = deb ? debtDueMonth(deb, settleState.mk) : null;
+  if(due) doSettle(due.remaining);
+};
+document.getElementById('settlePartial').onclick = ()=>{ document.getElementById('settleInputWrap').style.display='block'; document.getElementById('settleInput').focus(); };
+document.getElementById('settleConfirm').onclick = ()=>{ doSettle(document.getElementById('settleInput').value); };
+document.getElementById('settleCancel').onclick = closeSettle;
+document.getElementById('settleOverlay').addEventListener('click', e=>{ if(e.target.id==='settleOverlay') closeSettle(); });
+
+// ====== EXCLUIR / MOVER LANÇAMENTO ======
+let moveTarget = null;
+let _toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+function showMove(title, sub, bodyEl){
+  document.getElementById('moveTitle').textContent = title;
+  document.getElementById('moveSub').textContent = sub || '';
+  document.getElementById('moveBody').innerHTML = '';
+  document.getElementById('moveBody').appendChild(bodyEl);
+  document.getElementById('moveOverlay').style.display='flex';
+}
+function closeMove(){ document.getElementById('moveOverlay').style.display='none'; moveTarget=null;
+  const pf = document.getElementById('movePayField'); if(pf) pf.style.display='none';
+  const bf = document.getElementById('moveBancoField'); if(bf) bf.style.display='none'; }
+function moveBtn(label, fn, ghost){
+  const b = document.createElement('button');
+  b.className = 'btn ' + (ghost ? 'btn-ghost' : 'btn-primary') + ' btn-block';
+  b.textContent = label;
+  b.style.marginTop = '8px';
+  b.onclick = fn;
+  return b;
+}
+function openMove(id){
+  const found = findRecordById(id);
+  if(!found) return;
+  moveTarget = {kind:'record', id, mk: currentKey(), tipo: found.rec.tipo, label: found.rec.descricao, fixed: found.fixed};
+  moveStep0();
+}
+function openMoveDebt(id){
+  const deb = debts().find(d=>String(d.id)===String(id));
+  if(!deb) return;
+  moveTarget = {kind:'debt', id, debTipo: deb.tipo, label: deb.quem};
+  moveStep0();
+}
+function moveStep0(){
+  const t = moveTarget;
+  let sub = t.kind==='debt'
+    ? ((t.debTipo==='receber'?'A receber':'A pagar') + ' — ' + t.label)
+    : ((t.tipo==='receitas'?'Receita':'Despesa') + ' — ' + t.label);
+  const body = document.createElement('div');
+  if(t.fixed){
+    body.appendChild(moveBtn('🗑️ Excluir apenas deste mês', ()=>{ doExcluirMes(); }));
+    body.appendChild(moveBtn('🗑️ Excluir permanentemente', ()=>{ doMoveExcluir(); }, true));
+    body.appendChild(moveBtn('↔️ Mover para...', ()=>{ moveStepDest(); }, true));
+  } else {
+    body.appendChild(moveBtn('🗑️ Excluir totalmente', ()=>{ doMoveExcluir(); }));
+    body.appendChild(moveBtn('↔️ Mover para...', ()=>{ moveStepDest(); }, true));
+  }
+  showMove('Excluir ou mover?', sub, body);
+}
+function doExcluirMes(){
+  const t = moveTarget; if(!t) return;
+  if(t.fixed){ hideFromMonth(t.id, currentKey()); }
+  closeMove(); render(); toast('🗑️ Excluído apenas deste mês');
+}
+function moveStepDest(){
+  const t = moveTarget;
+  const payF = document.getElementById('movePayField');
+  const banF = document.getElementById('moveBancoField');
+  const isDeb = (t && t.kind==='debt');
+  if(payF) payF.style.display = isDeb ? 'block' : 'none';
+  if(isDeb){
+    const mm = document.getElementById('moveMetodo'); if(mm) mm.value='pix';
+    const mb = document.getElementById('moveBanco'); if(mb) mb.value='';
+  }
+  if(banF) banF.style.display = 'none';
+  syncMoveBanco();
+  const body = document.createElement('div');
+  if(t.kind==='debt'){
+    body.appendChild(moveBtn('→ Receitas', ()=>{ doMoveFromDebt('receitas'); }));
+    body.appendChild(moveBtn('→ Despesas', ()=>{ doMoveFromDebt('despesas'); }, true));
+  } else if(t.tipo==='receitas'){
+    body.appendChild(moveBtn('→ Despesas', ()=>{ doMoveTipo('despesas'); }));
+    body.appendChild(moveBtn('→ Dívidas (A receber)', ()=>{ doMoveToDebt('receber'); }, true));
+    body.appendChild(moveBtn('→ Dívidas (A pagar)', ()=>{ doMoveToDebt('devo'); }, true));
+  } else {
+    body.appendChild(moveBtn('→ Receitas', ()=>{ doMoveTipo('receitas'); }));
+    body.appendChild(moveBtn('→ Dívidas (A receber)', ()=>{ doMoveToDebt('receber'); }, true));
+    body.appendChild(moveBtn('→ Dívidas (A pagar)', ()=>{ doMoveToDebt('devo'); }, true));
+  }
+  body.appendChild(moveBtn('← Voltar', moveStep0, true));
+  showMove('Mover para...', 'Escolha o destino', body);
+}
+function doMoveExcluir(){
+  const t = moveTarget; if(!t) return;
+  if(t.kind==='debt'){ saveDebts(debts().filter(d=>String(d.id)!==String(t.id))); }
+  else { clearHiddenForId(t.id); removeRecordById(t.id); }
+  closeMove(); render();
+}
+function doMoveTipo(dest){
+  const t = moveTarget; if(!t) return;
+  clearHiddenForId(t.id);
+  updateRecordById(t.id, {tipo: dest});
+  closeMove(); render();
+}
+function doMoveToDebt(tipoDeb){
+  const t = moveTarget; const found = findRecordById(t.id);
+  if(!found) return;
+  const rec = found.rec;
+  const list = debts();
+  list.push({ id: Date.now(), quem: rec.descricao, tipo: tipoDeb, valor: rec.valor, obs: rec.categoria, nParcelas:1, inicio:t.mk, periodo:1, quitado:{} });
+  saveDebts(list);
+  clearHiddenForId(rec.id);
+  removeRecordById(rec.id);
+  closeMove(); render();
+}
+function doMoveFromDebt(dest){
+  const t = moveTarget; const deb = debts().find(d=>String(d.id)===String(t.id));
+  if(!deb) return;
+  const mk = currentKey();
+  const recs = data[mk]||[];
+  recs.push({ id: Date.now(), descricao: deb.quem, valor: debtPending(deb), categoria: deb.obs||'Dívida', metodo: (document.getElementById('moveMetodo')||{}).value||'pix', banco: (document.getElementById('moveBanco')||{}).value||'', data: mk+'-01', tipo: dest });
+  data[mk] = recs;
+  saveDebts(debts().filter(d=>String(d.id)!==String(t.id)));
+  closeMove(); render();
+}
+document.getElementById('moveCancel').onclick = closeMove;
+document.getElementById('moveOverlay').addEventListener('click', e=>{ if(e.target.id==='moveOverlay') closeMove(); });
+
+// ====== ENTER AVANÇA PARA O PRÓXIMO CAMPO ======
+function bindFieldNav(ids, submitId){
+  ids.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('keydown', e=>{
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      for(let j=i+1;j<ids.length;j++){
+        const n = document.getElementById(ids[j]);
+        if(n && n.offsetParent !== null){ n.focus(); n.select(); return; }
+      }
+      const sb = document.getElementById(submitId);
+      if(sb) sb.click();
+    });
+  });
+}
+// Formulário de lançamento (receita/despesa)
+bindFieldNav(['descricao','valor','valorBase','percent','categoria','metodo','banco','parcelas','data'], 'btnAdd');
+// Formulário de dívidas
+bindFieldNav(['debQuem','debTipo','debValor','debValorBase','debPercent','debObs','debForma','debParcelas','debInicio','debVence','debPeriodoNum','debPeriodoUnidade'], 'btnDebAdd');
+(function(){
+  const dd = document.getElementById('data');
+  if(dd && !dd.value){
+    const t = new Date();
+    dd.value = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  }
+  const di = document.getElementById('debInicio');
+  if(di && !di.value) di.value = currentKey() + '-01';
+  const dv = document.getElementById('debVence');
+  if(dv && !dv.value) dv.value = defaultVenc();
+  const forma = document.getElementById('debForma');
+  if(forma) forma.onchange = ()=>{
+    const pf = document.getElementById('debParceladoFields');
+    if(pf) pf.style.display = (forma.value==='parcelado') ? 'block' : 'none';
+  };
+  const _m1 = document.getElementById('metodo'); if(_m1) _m1.addEventListener('change', syncBancoField);
+  const _ms = document.getElementById('settleMetodo'); if(_ms) _ms.addEventListener('change', syncSettleBanco);
+  const _mm = document.getElementById('moveMetodo'); if(_mm) _mm.addEventListener('change', syncMoveBanco);
+  syncBancoField(); syncSettleBanco(); syncMoveBanco();
+})();
+function defaultVenc(){
+  const t = new Date();
+  const lastDayNext = new Date(t.getFullYear(), t.getMonth()+2, 0).getDate();
+  const day = Math.min(t.getDate(), lastDayNext);
+  const nd = new Date(t.getFullYear(), t.getMonth()+1, day);
+  return nd.getFullYear()+'-'+String(nd.getMonth()+1).padStart(2,'0')+'-'+String(nd.getDate()).padStart(2,'0');
+}
+function debtEmAtraso(deb){
+  const t = new Date();
+  const tMk = currentKey();
+  let limite = new Date(t.getFullYear(), t.getMonth()+1, 0); // default: último dia do mês
+  if(deb.vence){
+    const p = deb.vence.split('-').map(Number);
+    limite = new Date(p[0], p[1]-1, p[2]);
+  }
+  const overdue = t.getTime() > limite.getTime();
+  const dueNow = debtDueMonth(deb, tMk);
+  if(dueNow && dueNow.remaining > 0 && overdue) return true;
+  const duePrev = debtDueMonth(deb, addMonthsKey(tMk, -1));
+  if(duePrev && duePrev.remaining > 0) return true;
+  return false;
+}
+function renderDebits(){
+  const mk = currentKey();
+  const b = calcBalances();
+  let receber=0, devo=0;
+  const rows = [];
+  debts().forEach(deb=>{
+    const due = debtDueMonth(deb, mk);
+    if(!due) return;
+    rows.push({deb, due});
+    if(deb.tipo==='receber') receber += due.remaining; else devo += due.remaining;
+  });
+  document.getElementById('debReceber').textContent = fmtCurrency(receber);
+  document.getElementById('debCountReceber').textContent = rows.filter(r=>r.deb.tipo==='receber').length + ' anotações neste mês';
+  document.getElementById('debDevo').textContent = fmtCurrency(devo);
+  document.getElementById('debCountDevo').textContent = rows.filter(r=>r.deb.tipo==='devo').length + ' anotações neste mês';
+  document.getElementById('debSePagar').textContent = fmtCurrency(b.monthTot - b.devoMes);
+  document.getElementById('debSeReceber').textContent = fmtCurrency(b.monthTot + b.receberMes);
+  document.getElementById('debSaldoDividas').textContent = fmtCurrency(b.saldoDividas);
+  const body = document.getElementById('debTableBody');
+  if(rows.length===0){
+    body.innerHTML = `<tr><td colspan="5"><div class="empty"><span class="emoji">📒</span>Sem dívidas vencendo neste mês.</div></td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(({deb,due})=>{
+    const parcel = due.fixo ? ' · 📌 recorrente' : (due.n>1 ? (' · ' + due.p + '/' + due.n) : '');
+    const atraso = debtEmAtraso(deb);
+    return `<tr class="${atraso?'alerta':''}">
+      <td>${deb.fixo?'📌 ':''}${esc(deb.quem)}${atraso?' <span class="alerta-tag">Em atraso</span>':''}</td>
+      <td><span class="tag ${deb.tipo==='receber'?'receita':'despesa'}">${deb.tipo==='receber'?'A receber':'A pagar'}${parcel}</span></td>
+      <td class="amount ${deb.tipo==='receber'?'positive':'negative'}">${deb.tipo==='receber'?'+':'−'}${fmtCurrency(due.remaining)}${due.paid>0?' <span class="paid-note">(falta)</span>':''}</td>
+      <td>${esc(deb.obs||'')}</td>
+      <td><div class="actions-cell">
+        <button class="icon-btn settle ${deb.tipo}" onclick="settleDebt('${deb.id}','${mk}')" title="${deb.tipo==='receber'?'Marcar como recebido':'Marcar como pago'}">${deb.tipo==='receber'?'✓ Recebido':'✓ Pago'}</button>
+        <button class="icon-btn" onclick="editDebt('${deb.id}')" title="Editar">✏️</button>
+        <button class="icon-btn del" onclick="openMoveDebt('${deb.id}')" title="Excluir ou mover">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function renderSummary(records){
+  let rec=0, des=0;
+  records.forEach(r=>{ r.tipo==='receitas' ? rec+=r.valor : des+=r.valor; });
+  document.getElementById('sumReceitas').textContent = fmtCurrency(rec);
+  document.getElementById('countReceitas').textContent = records.filter(r=>r.tipo==='receitas').length + ' registros';
+  document.getElementById('sumDespesas').textContent = fmtCurrency(des);
+  document.getElementById('countDespesas').textContent = records.filter(r=>r.tipo==='despesas').length + ' registros';
+  document.getElementById('sumSaldo').textContent = fmtCurrency(rec - des);
+  const pct = document.getElementById('pctSaldo');
+  pct.textContent = rec>0 ? (Math.round(des/rec*100) + '% da receita gasta') : 'Sem receitas no mês';
+}
+function renderTable(records){
+  const body = document.getElementById('tableBody');
+  const list = records.filter(r=>r.tipo===currentTab).concat(fixedForMonth(currentKey()).filter(r=>r.tipo===currentTab)).sort((a,b)=> (a.data<b.data?1:-1));
+  if(list.length===0){
+    body.innerHTML = `<tr><td colspan="6"><div class="empty"><span class="emoji">📭</span>Nenhum registro de ${currentTab==='receitas'?'receitas':'despesas'} neste mês.</div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(r=>`
+    <tr>
+      <td>${r.fixado?'📌 ':''}${esc(r.descricao)}</td>
+      <td><span class="tag ${r.tipo}">${esc(r.categoria)}</span></td>
+      <td><span class="tag metodo ${r.metodo||'pix'}">${bancoBadge(r.banco)}${r.metodo==='dinheiro'?'Físico':'Virtual'}</span></td>
+      <td>${formatDate(r.data)}</td>
+      <td class="amount ${r.tipo==='receitas'?'positive':'negative'}">${r.tipo==='receitas'?'+':'−'}${fmtCurrency(r.valor)}</td>
+      <td><div class="actions-cell">
+        <button class="fix-tgl ${r.fixado?'on':''}" onclick="toggleFix('${r.id}')" title="${r.fixado?'Desafixar (só no mês atual)':'Fixar em todos os meses'}"><span class="fix-circle"></span><span class="fix-label">lançamento fixo</span></button>
+        <button class="icon-btn" onclick="editRecord('${r.id}')" title="Editar">✏️</button>
+        <button class="icon-btn del" onclick="openMove('${r.id}')" title="Excluir ou mover">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+function renderBreakdown(records){
+  const des = records.filter(r=>r.tipo==='despesas');
+  const rec = records.filter(r=>r.tipo==='receitas');
+  const desTotal = des.reduce((s,r)=>s+r.valor,0);
+  const recTotal = rec.reduce((s,r)=>s+r.valor,0);
+  const saldo = recTotal - desTotal;
+  const total = recTotal + desTotal;
+  const pctDes = total>0 ? Math.round(desTotal/total*100) : 0;
+  const pctRec = total>0 ? Math.round(recTotal/total*100) : 0;
+  const degRec = Math.round(pctRec*3.6);
+  const pieGrad = total>0 ? `conic-gradient(#34d399 0deg ${degRec}deg, #f87171 ${degRec}deg 360deg)` : 'conic-gradient(#2a2a3d 0deg 360deg)';
+  document.getElementById('resumoOverview').innerHTML = `
+    <h3 style="margin-bottom:16px">Visão geral do mês</h3>
+    <div class="ov-grid">
+      <div class="ov-item"><span class="ov-label">Receitas</span><span class="ov-val rec">${fmtCurrency(recTotal)}</span></div>
+      <div class="ov-item"><span class="ov-label">Despesas</span><span class="ov-val des">${fmtCurrency(desTotal)}</span></div>
+      <div class="ov-item"><span class="ov-label">Saldo</span><span class="ov-val sal">${fmtCurrency(saldo)}</span></div>
+    </div>
+    <div class="ov-bar"><div class="ov-fill" style="width:${pctDes}%"></div></div>
+    <div class="ov-caption">${pctDes}% de tudo que movimentou foram despesas</div>
+    <div class="pie-wrap">
+      <div class="pie" style="background:${pieGrad}">
+        <div class="pie-hole"><div class="pie-center">Gráfico<br>do mês</div></div>
+      </div>
+      <div class="pie-legend">
+        <div class="pi-item rec"><span class="swatch" style="background:#34d399"></span> Receitas <b>${pctRec}%</b></div>
+        <div class="pi-item des"><span class="swatch" style="background:#f87171"></span> Despesas <b>${pctDes}%</b></div>
+      </div>
+    </div>`;
+  document.getElementById('expenseBreakdown').innerHTML = donutChart(des);
+  document.getElementById('incomeBreakdown').innerHTML = donutChart(rec);
+  renderBankBreakdown(records);
+}
+function renderBankBreakdown(records){
+  const bankMap = {};
+  records.forEach(r=>{ const k=r.banco||''; if(!bankMap[k]) bankMap[k]={rec:0,des:0}; if(r.tipo==='receitas') bankMap[k].rec+=r.valor; else bankMap[k].des+=r.valor; });
+  const keys = Object.keys(bankMap);
+  const el = document.getElementById('bankBreakdown');
+  if(keys.length===0){ el.innerHTML = '<div class="empty"><span class="emoji">🏦</span>Nenhuma lançamento com banco neste mês.</div>'; return; }
+  el.innerHTML = '<div class="bank-grid">'+keys.map(k=>{
+    const v = bankMap[k]; const saldo = v.rec - v.des; const b = getBank(k);
+    const nome = b ? b.nome : 'Outro'; const cor = b ? b.cor : '#64748b'; const sig = b ? b.sigla : '?';
+    return '<div class="bank-row">'+bancoBadge(k)+'<span class="bk-name">'+esc(nome)+'<div class="bank-sub">+'+fmtCurrency(v.rec)+' −'+fmtCurrency(v.des)+'</div></span><span class="bkamt '+(saldo>=0?'pos':'neg')+'">'+fmtCurrency(saldo)+'</span></div>';
+  }).join('')+'</div>';
+}
+function donutChart(list){
+  if(list.length===0) return '<div class="empty"><span class="emoji">📊</span>Sem dados neste mês.</div>';
+  const total = list.reduce((s,r)=>s+r.valor,0);
+  if(total<=0) return '<div class="empty"><span class="emoji">📊</span>Sem dados neste mês.</div>';
+  const byCat = {};
+  list.forEach(r=>{ byCat[r.categoria] = (byCat[r.categoria]||0)+r.valor; });
+  const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const palette = ['#8b5cf6','#a78bfa','#6d28d9','#c4b5fd','#a855f7','#7c3aed','#9333ea','#5b21b6'];
+  let acc = 0;
+  const stops = entries.map(([cat,val],i)=>{
+    const start = acc/total*360; acc += val; const end = acc/total*360;
+    return {color:palette[i%palette.length], start, end};
+  });
+  const gradient = stops.map(s=>`${s.color} ${s.start.toFixed(2)}deg ${s.end.toFixed(2)}deg`).join(', ');
+  const legend = entries.map(([cat,val],i)=>{
+    const pct = Math.round(val/total*100);
+    return `<div class="legend-item"><span class="swatch" style="background:${palette[i%palette.length]}"></span><span>${esc(cat)}</span><b>${fmtCurrency(val)} · ${pct}%</b></div>`;
+  }).join('');
+  return `<div class="donut-chart">
+    <div class="donut" style="background:conic-gradient(${gradient})"><div class="donut-hole">${fmtCurrency(total)}</div></div>
+    <div class="legend">${legend}</div>
+  </div>`;
+}
+function formatDate(d){
+  if(!d) return '';
+  const p = d.split('-');
+  return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ====== TEMA (cores) ======
+const THEMES = {
+  roxo:   {p1:'#8b5cf6', p2:'#a78bfa', pd:'#6d28d9'},
+  azul:   {p1:'#3b82f6', p2:'#60a5fa', pd:'#1d4ed8'},
+  verde:  {p1:'#22c55e', p2:'#4ade80', pd:'#15803d'},
+  rosa:   {p1:'#ec4899', p2:'#f472b6', pd:'#be185d'},
+  vermelho:{p1:'#ef4444', p2:'#f87171', pd:'#b91c1c'},
+  laranja:{p1:'#f97316', p2:'#fb923c', pd:'#c2410c'},
+  ciano:  {p1:'#06b6d4', p2:'#22d3ee', pd:'#0e7490'},
+  dourado:{p1:'#eab308', p2:'#facc15', pd:'#a16207'}
+};
+function hexToRgb(hex){
+  const h = hex.replace('#','');
+  const n = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
+  return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
+}
+function mix(a,b,p){ return Math.round(a+(b-a)*p); }
+function clamp(n){ return Math.max(0, Math.min(255, n)); }
+function shade(hex, pct){
+  const {r,g,b} = hexToRgb(hex);
+  const p = Math.abs(pct)/100;
+  const target = pct>0 ? 255 : 0;
+  return '#' + [clamp(mix(r,target,p)), clamp(mix(g,target,p)), clamp(mix(b,target,p))].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+const colorPick = document.getElementById('themePick');
+function hsvToRgb(h,s,v){
+  h/=60; const i=Math.floor(h); const f=h-i;
+  const p=v*(1-s), q=v*(1-s*f), t=v*(1-s*(1-f));
+  const m=[ [v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q] ][i%6];
+  return [Math.round(m[0]*255), Math.round(m[1]*255), Math.round(m[2]*255)];
+}
+function drawWheel(canvas){
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,R=w/2;
+  const img=ctx.createImageData(w,h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const dx=x-cx,dy=y-cy,dist=Math.sqrt(dx*dx+dy*dy),i=(y*w+x)*4;
+      if(dist<=R){
+        const hue=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+        const sat=Math.min(1,dist/R);
+        const [r,g,b]=hsvToRgb(hue,sat,1);
+        img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
+      } else { img.data[i+3]=0; }
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function applyBg(hex){
+  const r=document.documentElement.style;
+  r.setProperty('--bg', shade(hex,-72));
+  r.setProperty('--glow', shade(hex,-58));
+  r.setProperty('--glow2', shade(hex,-42));
+}
+const wheelCanvas = document.getElementById('colorWheel');
+if(wheelCanvas){
+  drawWheel(wheelCanvas);
+  wheelCanvas.addEventListener('click', (e)=>{
+    const rect=wheelCanvas.getBoundingClientRect();
+    const x=Math.round((e.clientX-rect.left)*(wheelCanvas.width/rect.width));
+    const y=Math.round((e.clientY-rect.top)*(wheelCanvas.height/rect.height));
+    const d=wheelCanvas.getContext('2d').getImageData(x,y,1,1).data;
+    if(d[3]===0) return;
+    const hex='#'+[d[0],d[1],d[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+    applyCustomColor(hex);
+  });
+}
+function markActive(key){ document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.toggle('active', s.dataset.theme===key)); }
+function buildThemeGrid(){
+  const g = document.getElementById('themeGrid');
+  g.innerHTML = Object.entries(THEMES).map(([k,t])=>`
+    <div class="theme-swatch" data-theme="${k}" title="${k}" style="background:linear-gradient(135deg,${t.p1},${t.pd})"></div>`).join('');
+  g.querySelectorAll('.theme-swatch').forEach(s=>{ s.onclick = ()=> applyTheme(s.dataset.theme); });
+}
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.roxo;
+  const r = document.documentElement.style;
+  r.setProperty('--purple', t.p1);
+  r.setProperty('--purple2', t.p2);
+  r.setProperty('--purple-dark', t.pd);
+  applyBg(t.p1);
+  localStorage.setItem('financas_theme', key);
+  if(colorPick) colorPick.value = t.p1;
+  markActive(key);
+}
+function applyCustomColor(hex){
+  const r = document.documentElement.style;
+  r.setProperty('--purple', hex);
+  r.setProperty('--purple2', shade(hex, 30));
+  r.setProperty('--purple-dark', shade(hex, -30));
+  applyBg(hex);
+  localStorage.setItem('financas_theme', 'custom:'+hex);
+  const ch = document.getElementById('colorHex'); if(ch) ch.textContent = hex;
+  markActive('');
+}
+if(colorPick) colorPick.addEventListener('input', e=> applyCustomColor(e.target.value));
+// ====== METAS ======
+function metas(){ return data._metas || (data._metas = []); }
+function metasReservado(){ return Math.round(metas().reduce((s,g)=>s+g.guardado,0)*100)/100; }
+function renderMetas(){
+  const grid = document.getElementById('metasGrid');
+  if(!grid) return;
+  const list = metas();
+  if(list.length===0){ grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty"><span class="emoji">🎯</span>Nenhuma meta ainda. Adicione a primeira acima.</div></div>'; return; }
+  grid.innerHTML = list.map(g=>{
+    const pct = g.alvo>0 ? Math.min(100, Math.round(g.guardado/g.alvo*100)) : 0;
+    const alvo = g.alvo>0 ? ' de ' + fmtCurrency(g.alvo) : '';
+    return `<div class="meta-card">
+      <div class="mc-top"><span class="mc-nome">${esc(g.nome)}</span><span style="font-size:12px;color:var(--muted)">${pct}%</span></div>
+      <div class="meta-bar"><div style="width:${pct}%"></div></div>
+      <div class="mc-val"><b>${fmtCurrency(g.guardado)}</b> separado${alvo}</div>
+      <div class="meta-actions">
+        <button class="btn btn-ghost" style="flex:1;padding:8px" onclick="addMetaValor('${g.id}')">💰 + separar</button>
+        <button class="btn btn-ghost" style="flex:1;padding:8px" onclick="delMeta('${g.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addMetaValor(id){
+  const m = metas().find(x=>String(x.id)===String(id)); if(!m) return;
+  const v = prompt('Quanto quer separar para "' + m.nome + '"?', '');
+  const val = Math.round(parseValor(v)*100)/100;
+  if(!val || val<=0) return;
+  m.guardado = Math.round((m.guardado+val)*100)/100;
+  save(); renderMetas();
+}
+function delMeta(id){
+  if(!confirm('Excluir esta meta?')) return;
+  data._metas = metas().filter(x=>String(x.id)!==String(id));
+  save(); renderMetas();
+}
+function resetMetaForm(){
+  document.getElementById('metaNome').value='';
+  document.getElementById('metaAlvo').value='';
+  document.getElementById('metaValor').value='';
+}
+document.getElementById('btnMetaAdd').onclick = ()=>{
+  const nome = document.getElementById('metaNome').value.trim();
+  const alvo = Math.round(parseValor(document.getElementById('metaAlvo').value)*100)/100;
+  const val = Math.round(parseValor(document.getElementById('metaValor').value)*100)/100;
+  if(!nome || !val || val<=0){ alert('Preencha o nome e quanto quer separar.'); return; }
+  const list = metas();
+  let m = list.find(x=>x.nome.toLowerCase()===nome.toLowerCase());
+  if(m){ m.guardado = Math.round((m.guardado+val)*100)/100; }
+  else { list.push({id: Date.now(), nome, alvo: alvo||0, guardado: val}); }
+  save(); renderMetas(); resetMetaForm();
+};
+bindMoneyMask('metaValor');
+bindMoneyMask('metaAlvo');
+// Botões da sidebar (cor/perfil/sair)
+document.getElementById('btnSideTheme').onclick = (e)=>{ e.stopPropagation(); const p=document.getElementById('themePanel'); p.style.display = p.style.display==='none' ? 'block' : 'none'; document.getElementById('profilePanel').style.display='none'; };
+document.getElementById('btnSideProfile').onclick = (e)=>{ e.stopPropagation(); document.getElementById('themePanel').style.display='none'; document.getElementById('profNome').value = currentUser.nome; document.getElementById('profSenhaAtual').value=''; document.getElementById('profNovaSenha').value=''; showProfileMsg(''); const p=document.getElementById('profilePanel'); p.style.display = p.style.display==='none' ? 'block' : 'none'; };
+document.getElementById('btnSideLogout').onclick = ()=>{ localStorage.removeItem(SESS_KEY); currentUser = null; showLoginScreen(); };
+document.getElementById('btnTheme').onclick = (e)=>{
+  e.stopPropagation();
+  const p = document.getElementById('themePanel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+  document.getElementById('profilePanel').style.display='none';
+};
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('#btnTheme') && !e.target.closest('#themePanel') && !e.target.closest('#btnSideTheme')){
+    document.getElementById('themePanel').style.display='none';
+  }
+  if(!e.target.closest('#btnProfile') && !e.target.closest('#profilePanel') && !e.target.closest('#btnSideProfile')){
+    document.getElementById('profilePanel').style.display='none';
+  }
+});
+// ====== EDITAR PERFIL ======
+function showProfileMsg(msg, ok){
+  const el = document.getElementById('profileMsg');
+  el.textContent = msg || '';
+  el.className = 'login-msg' + (ok?' ok':'');
+}
+document.getElementById('btnProfile').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('themePanel').style.display='none';
+  document.getElementById('profNome').value = currentUser.nome;
+  document.getElementById('profSenhaAtual').value = '';
+  document.getElementById('profNovaSenha').value = '';
+  showProfileMsg('');
+  const p = document.getElementById('profilePanel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+};
+document.getElementById('btnProfileCancel').onclick = ()=>{ document.getElementById('profilePanel').style.display='none'; };
+document.getElementById('btnProfileSave').onclick = ()=>{
+  const nome = document.getElementById('profNome').value.trim();
+  const atual = document.getElementById('profSenhaAtual').value;
+  const nova = document.getElementById('profNovaSenha').value;
+  if(!atual || hashStr(atual) !== currentUser.senha){ showProfileMsg('Senha atual incorreta.'); return; }
+  if(!nome){ showProfileMsg('Digite seu nome de usuário.'); return; }
+  const users = loadUsers();
+  const dup = users.find(x=>x.id!==currentUser.id && x.nome.toLowerCase()===nome.toLowerCase());
+  if(dup){ showProfileMsg('Este nome já está cadastrado.'); return; }
+  const u = users.find(x=>x.id===currentUser.id);
+  if(!u){ return; }
+  u.nome = nome;
+  if(nova){
+    if(nova.length<4){ showProfileMsg('A nova senha deve ter pelo menos 4 caracteres.'); return; }
+    u.senha = hashStr(nova);
+  }
+  saveUsers(users);
+  currentUser.nome = nome;
+  document.getElementById('userChip').textContent = '👤 ' + nome;
+  document.getElementById('profilePanel').style.display='none';
+  showProfileMsg('✅ Perfil atualizado!', true);
+  setTimeout(()=>{ const m=document.getElementById('profileMsg'); m.textContent=''; m.className='login-msg'; }, 2500);
+};
+buildThemeGrid();
+(function(){
+  const saved = localStorage.getItem('financas_theme')||'roxo';
+  if(saved.indexOf('custom:')===0){ applyCustomColor(saved.slice(7)); }
+  else { applyTheme(saved); }
+})();
+
+// ====== BACKUP: mantém o cadastro salvo mesmo se o link mudar ======
+function exportarBackup(){
+  if(!currentUser) return;
+  const backup = {
+    app: 'controle_financeiro',
+    version: 1,
+    exportadoEm: new Date().toISOString(),
+    usuarios: loadUsers().map(u=>{
+      let dados = {};
+      try{ dados = JSON.parse(localStorage.getItem('financas_dados_'+u.id+'_v1')) || {}; }catch(e){}
+      return { id:u.id, nome:u.nome, senha:u.senha, google:u.google||'', criadoEm:u.criadoEm||'', dados };
+    })
+  };
+  const blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'controle_financeiro_backup.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+  toast('⬇️ Backup exportado!');
+}
+function restaurarBackup(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const backup = JSON.parse(reader.result);
+      if(!backup || backup.app!=='controle_financeiro') throw new Error('invalido');
+      (backup.usuarios||[]).forEach(u=>{
+        localStorage.setItem('financas_dados_'+u.id+'_v1', JSON.stringify(u.dados||{}));
+      });
+      saveUsers((backup.usuarios||[]).map(u=>({ id:u.id, nome:u.nome, senha:u.senha, google:u.google||'', criadoEm:u.criadoEm||'' })));
+      toast('⬆️ Backup restaurado!');
+      setTimeout(()=>location.reload(), 400);
+    }catch(e){
+      showProfileMsg('Erro ao restaurar o backup.');
+    }
+  };
+  reader.readAsText(file);
+}
+document.getElementById('btnBackup').onclick = exportarBackup;
+document.getElementById('btnRestore').onclick = ()=>{ document.getElementById('backupFile').click(); };
+document.getElementById('backupFile').onchange = function(e){
+  const f = e.target.files && e.target.files[0];
+  if(f) restaurarBackup(f);
+  e.target.value='';
+};
+
+// ====== INIT ======
+(function(){
+  const savedId = localStorage.getItem(SESS_KEY);
+  if(savedId){
+    const u = loadUsers().find(x=>x.id===savedId);
+    if(u){ enterApp(u); return; }
+  }
+  prefillLoginNome();
+  renderGoogleButton();
+  showLoginScreen();
+})();
+window.addEventListener('load', renderGoogleButton);
+</script>
+</body>
+</html>
