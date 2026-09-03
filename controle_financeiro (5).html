@@ -231,6 +231,26 @@ tr.alerta td{background:rgba(248,113,113,.10);}
 .side-bottom{margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:6px;}
 .side-bottom .side-item{font-weight:500;}
 .content{flex:1;min-width:0;}
+.bank-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.bank-header .section-title{font-size:22px;font-weight:700;margin:0;}
+.bank-header .section-sub{color:var(--muted);margin-top:4px;}
+.bank-header .section-sub b{color:var(--purple);}
+.contas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+.conta-card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.cc-blob{position:absolute;top:-24px;right:-24px;width:120px;height:120px;border-radius:50%;opacity:.5;pointer-events:none;}
+.cc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+.cc-id{display:flex;align-items:center;gap:12px;}
+.cc-logo{width:48px;height:48px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:#fff;}
+.cc-logo img{width:32px;height:32px;object-fit:contain;}
+.cc-logo span{font-size:15px;font-weight:800;}
+.cc-name{font-weight:700;color:var(--text);font-size:15px;}
+.cc-curr{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.cc-actions{display:flex;gap:6px;position:relative;z-index:2;}
+.cc-btn{background:transparent;border:none;cursor:pointer;font-size:15px;padding:3px;opacity:.7;border-radius:6px;}
+.cc-btn:hover{opacity:1;background:rgba(0,0,0,.06);}
+.cc-btn.del:hover{background:rgba(220,38,38,.12);}
+.cc-bal{position:relative;font-size:24px;font-weight:700;margin-top:18px;color:#16a34a;font-family:Georgia,'Times New Roman',serif;}
+.cc-bal.neg{color:#dc2626;}
 .app-section{animation:fadein .25s ease;}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .section-title{font-size:22px;font-weight:800;margin:6px 0 4px;color:var(--text);}
@@ -244,16 +264,46 @@ tr.alerta td{background:rgba(248,113,113,.10);}
 }
 
 /* ===== METAS ===== */
-.meta-add{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px;}
-.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
-.meta-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
-.meta-card .mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.meta-card .mc-nome{font-size:15px;font-weight:700;color:var(--text);}
-.meta-bar{height:10px;border-radius:6px;background:rgba(0,0,0,.25);overflow:hidden;margin:10px 0;}
-.meta-bar>div{height:100%;background:linear-gradient(90deg,var(--purple),#a78bfa);border-radius:6px;}
-.meta-card .mc-val{font-size:13px;color:var(--muted);}
-.meta-card .mc-val b{color:var(--purple2);}
-.meta-actions{display:flex;gap:8px;margin-top:12px;}
+.meta-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.meta-header .section-title{font-size:22px;font-weight:700;margin:0;}
+.meta-header .section-sub{color:var(--muted);margin-top:4px;}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1c1917;font-weight:700;border:none;border-radius:10px;padding:10px 16px;cursor:pointer;}
+.btn-gold.btn-block{width:100%;}
+.btn-gold:hover{filter:brightness(1.05);}
+.meta-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:18px;}
+.mf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.mf-title{font-size:17px;font-weight:700;color:var(--text);}
+.mf-close{background:transparent;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:8px;}
+.mf-close:hover{background:rgba(0,0,0,.08);color:var(--text);}
+.mf-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
+.swatches{display:flex;gap:8px;padding-top:6px;flex-wrap:wrap;}
+.sw{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s, border-color .15s;}
+.sw:hover{transform:scale(1.1);}
+.sw.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text);}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.meta-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;}
+.meta-card.done{border-width:2px;}
+.mc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.mc-title{display:flex;align-items:center;gap:10px;min-width:0;}
+.mc-emoji{width:40px;height:40px;border-radius:10px;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;}
+.mc-nome{font-size:15px;font-weight:700;color:var(--text);line-height:1.2;}
+.mc-txt{display:flex;flex-direction:column;min-width:0;}
+.mc-sub{font-size:12px;font-weight:600;margin-top:2px;white-space:nowrap;}
+.mc-sub.dias{color:#f59e0b;}
+.mc-sub.venc{color:#ef4444;}
+.mc-actions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.mc-venc{font-size:11px;font-weight:700;color:#ef4444;background:rgba(239,68,68,.12);padding:3px 8px;border-radius:8px;white-space:nowrap;}
+.mc-actions button{background:transparent;border:none;cursor:pointer;font-size:15px;opacity:.7;padding:2px;border-radius:6px;}
+.mc-actions button:hover{opacity:1;background:rgba(0,0,0,.06);}
+.mc-actions button.del:hover{background:rgba(220,38,38,.12);}
+.mc-values{display:flex;justify-content:space-between;}
+.mc-val .lbl{display:block;font-size:11px;color:var(--muted);margin-bottom:2px;}
+.mc-val b{font-size:16px;color:var(--text);}
+.meta-bar{height:10px;border-radius:6px;background:rgba(0,0,0,.2);overflow:hidden;}
+.meta-bar>div{height:100%;border-radius:6px;}
+.mc-pct{font-size:12px;color:var(--muted);text-align:right;margin-top:-4px;}
+.mc-done{text-align:center;color:#16a34a;font-weight:700;font-size:14px;padding:8px 0;border-radius:10px;background:rgba(22,163,74,.12);}
 
 @media(max-width:700px){
   .app-header{flex-direction:column;align-items:stretch;}
@@ -444,6 +494,29 @@ tr.alerta td{background:rgba(248,113,113,.10);}
   </div>
   <div class="toast" id="toast"></div>
 
+  <div class="settle-overlay" id="contaOverlay" style="display:none">
+    <div class="settle-modal">
+      <div class="settle-title" id="contaTitle">Nova Conta</div>
+      <div class="settle-sub" id="contaSub">Escolha o banco da conta.</div>
+      <div class="field">
+        <label>Banco</label>
+        <select id="contaBanco"></select>
+      </div>
+      <div class="field" id="contaNomeOutroField" style="display:none">
+        <label>Nome do banco</label>
+        <input type="text" id="contaNomeOutro" placeholder="Ex: Conta Corrente, Nubank..." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Saldo inicial (R$)</label>
+        <input type="text" id="contaSaldo" inputmode="decimal" placeholder="0,00" autocomplete="off">
+      </div>
+      <div class="settle-msg" id="contaMsg"></div>
+      <button class="btn btn-primary btn-block" id="btnContaOk">Salvar</button>
+      <button class="btn btn-ghost btn-block" id="btnContaCancel" style="margin-top:8px">Cancelar</button>
+    </div>
+  </div>
+
+  
   <section id="sec-painel" class="app-section">
   <div class="section-title">Painel</div>
   <div class="section-sub">Acompanhe seus saldos.</div>
@@ -700,9 +773,15 @@ tr.alerta td{background:rgba(248,113,113,.10);}
   </section><!-- /sec-transacoes -->
 
   <section id="sec-bancos" class="app-section" style="display:none">
-    <div class="section-title">🏦 Bancos</div>
-    <div class="section-sub">Meus bancos e o saldo de cada um.</div>
-    <div class="card"><h3 style="margin-bottom:16px">Saldo por banco</h3><div id="bankBreakdown"></div></div>
+    <div class="bank-header">
+      <div>
+        <div class="section-title">🏦 Contas Bancárias</div>
+        <div class="section-sub">Saldo total: <b id="bankTotal">R$ 0,00</b></div>
+      </div>
+      <button class="btn btn-primary" id="btnNovaConta">＋ Nova Conta</button>
+    </div>
+    <div class="contas-grid" id="contasGrid"></div>
+    <div id="bankBreakdown" style="display:none"></div>
   </section>
 
   <section id="sec-categorias" class="app-section" style="display:none">
@@ -714,16 +793,38 @@ tr.alerta td{background:rgba(248,113,113,.10);}
   </section>
 
   <section id="sec-metas" class="app-section" style="display:none">
-    <div class="section-title">🎯 Metas</div>
-    <div class="section-sub">Adicione metas e separe dinheiro para cada uma.</div>
-    <div class="meta-add">
-      <h3>🎯 Nova meta</h3>
-      <div class="form-grid">
-        <div class="field"><label>Nome da meta</label><input type="text" id="metaNome" placeholder="Ex: Viagem, Reserva..."></div>
-        <div class="field"><label>Valor alvo (R$)</label><input type="text" id="metaAlvo" inputmode="decimal" placeholder="0,00"></div>
-        <div class="field"><label>Quanto separar (R$)</label><input type="text" id="metaValor" inputmode="decimal" placeholder="0,00"></div>
+    <div class="meta-header">
+      <div>
+        <div class="section-title">🎯 Metas de Economia</div>
+        <div class="section-sub">Acompanhe seu progresso.</div>
       </div>
-      <div class="form-actions"><button class="btn btn-primary" id="btnMetaAdd">➕ Adicionar à meta</button></div>
+      <button class="btn btn-gold" id="btnNovaMeta">＋ Nova Meta</button>
+    </div>
+    <div class="meta-form" id="metaForm" style="display:none">
+      <div class="mf-head">
+        <span class="mf-title" id="metaFormTitle">Nova Meta</span>
+        <button class="mf-close" id="btnMetaClose" title="Fechar">✕</button>
+      </div>
+      <div class="form-grid2">
+        <div class="field"><label>Título *</label><input type="text" id="metaTitulo" placeholder="Ex: Viagem para Europa" autocomplete="off"></div>
+        <div class="field"><label>Valor Alvo *</label><input type="text" id="metaAlvo" inputmode="decimal" placeholder="0,00"></div>
+        <div class="field"><label>Valor Atual</label><input type="text" id="metaAtual" inputmode="decimal" placeholder="0,00"></div>
+        <div class="field"><label>Prazo</label><input type="date" id="metaPrazo"></div>
+        <div class="field"><label>Emoji</label><input type="text" id="metaEmoji" value="🎯" maxlength="4"></div>
+        <div class="field"><label>Cor</label><div class="swatches" id="metaSwatches">
+          <span class="sw" data-c="#f59e0b" style="background:#f59e0b"></span>
+          <span class="sw" data-c="#8b5cf6" style="background:#8b5cf6"></span>
+          <span class="sw" data-c="#3b82f6" style="background:#3b82f6"></span>
+          <span class="sw" data-c="#22c55e" style="background:#22c55e"></span>
+          <span class="sw" data-c="#ec4899" style="background:#ec4899"></span>
+          <span class="sw" data-c="#ef4444" style="background:#ef4444"></span>
+        </div></div>
+      </div>
+      <div class="settle-msg" id="metaMsg"></div>
+      <div class="mf-actions">
+        <button class="btn btn-ghost" id="btnMetaCancel">Cancelar</button>
+        <button class="btn btn-gold" id="btnMetaOk">Criar Meta</button>
+      </div>
     </div>
     <div class="meta-grid" id="metasGrid"></div>
   </section>
@@ -1568,6 +1669,7 @@ function render(){
   renderBalance();
   renderTable(records);
   renderBreakdown(all);
+  renderContas();
   renderDebits();
   renderExtrato(all);
   renderMetas();
@@ -1619,7 +1721,7 @@ function renderExtrato(records){
 function calcBalances(){
   let tot=0, din=0, pix=0;
   Object.keys(data).forEach(m=>{
-    if(m==='_debts') return;
+    if(!/^\d{4}-\d{1,2}$/.test(String(m))) return;
     (data[m]||[]).forEach(r=>{
       const v = r.tipo==='receitas' ? r.valor : -r.valor;
       tot += v;
@@ -2088,6 +2190,122 @@ function renderBreakdown(records){
   document.getElementById('incomeBreakdown').innerHTML = donutChart(rec);
   renderBankBreakdown(records);
 }
+// ====== CONTAS BANCÁRIAS ======
+let contaMode = 'add', contaEditId = null;
+function contas(){ return data._contas || (data._contas = []); }
+function allRecords(){
+  const out = [];
+  Object.keys(data).forEach(m=>{
+    if(!/^\d{4}-\d{1,2}$/.test(String(m))) return;
+    (data[m]||[]).forEach(r=>out.push(r));
+  });
+  return out;
+}
+function bankingSaldo(b){
+  let s = 0;
+  allRecords().forEach(r=>{ if((r.banco||'')===b) s += r.tipo==='receitas' ? r.valor : -r.valor; });
+  return s;
+}
+function renderContas(){
+  let list = contas();
+  if(list.length===0){
+    const used = {};
+    allRecords().forEach(r=>{ const b=r.banco||''; if(b) used[b]=1; });
+    list = Object.keys(used).map((b,i)=>({id:'auto-'+i, banco:b}));
+  }
+  const grid = document.getElementById('contasGrid');
+  const totalEl = document.getElementById('bankTotal');
+  let total = 0;
+  if(list.length===0){
+    grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty"><span class="emoji">🏦</span>Nenhuma conta ainda. Clique em \"+ Nova Conta\".</div></div>';
+  } else {
+    grid.innerHTML = list.map(c=>{
+      const b = c.banco==='outro' ? null : getBank(c.banco);
+      const nome = c.banco==='outro' ? (c.nome||'Outro') : (b ? b.nome : 'Outro');
+      const cor = b ? b.cor : '#64748b';
+      const sig = c.banco==='outro' ? (c.nome?c.nome.trim()[0].toUpperCase()||'?':'?') : (b ? b.sigla : '?');
+      const logo = c.banco==='outro' ? null : BANK_LOGOS[c.banco];
+      const saldo = (c.saldoInicial||0) + bankingSaldo(c.banco); total += saldo;
+      const logoHTML = logo
+        ? '<div class="cc-logo"><img src="'+logo+'" alt=""></div>'
+        : '<div class="cc-logo" style="background:'+cor+'"><span style="color:#fff">'+sig+'</span></div>';
+      const valTxt = saldo<0 ? '-'+fmtCurrency(-saldo) : fmtCurrency(saldo);
+      return '<div class="conta-card">'
+        +'<div class="cc-blob" style="background:'+cor+'"></div>'
+        +'<div class="cc-top"><div class="cc-id">'+logoHTML+'<div class="cc-info"><span class="cc-name">'+esc(nome)+'</span><span class="cc-curr">BRL</span></div></div>'
+        +'<div class="cc-actions"><button class="cc-btn" title="Editar" onclick="editConta(\''+c.id+'\')">✏️</button><button class="cc-btn del" title="Excluir" onclick="delConta(\''+c.id+'\')">🗑️</button></div></div>'
+        +'<div class="cc-bal'+(saldo<0?' neg':'')+'">'+valTxt+'</div>'
+        +'</div>';
+    }).join('');
+  }
+  totalEl.textContent = fmtCurrency(total);
+}
+function fillContaSelect(selected){
+  const sel = document.getElementById('contaBanco');
+  const used = new Set(contas().map(c=>c.banco));
+  const opts = BANCOS.filter(b=> contaMode==='edit' || !used.has(b.id));
+  sel.innerHTML = opts.map(b=>'<option value="'+b.id+'"'+(b.id===selected?' selected':'')+'>'+esc(b.nome)+'</option>').join('')
+    +'<option value="outro"'+(selected==='outro'?' selected':'')+'>Outro — escrever nome</option>';
+  syncContaNomeField();
+}
+function openNewConta(){
+  contaMode='add'; contaEditId=null;
+  document.getElementById('contaTitle').textContent='Nova Conta';
+  document.getElementById('contaMsg').textContent='';
+  document.getElementById('contaSaldo').value='';
+  document.getElementById('contaNomeOutro').value='';
+  fillContaSelect(null);
+  document.getElementById('contaOverlay').style.display='flex';
+}
+function syncContaNomeField(){
+  const isOutro = document.getElementById('contaBanco').value==='outro';
+  document.getElementById('contaNomeOutroField').style.display = isOutro ? 'block' : 'none';
+}
+function editConta(id){
+  contaMode='edit'; contaEditId=id;
+  document.getElementById('contaTitle').textContent='Editar Conta';
+  document.getElementById('contaMsg').textContent='';
+  const c = contas().find(x=>String(x.id)===String(id));
+  document.getElementById('contaSaldo').value = c && c.saldoInicial ? fmtMoney(c.saldoInicial) : '';
+  document.getElementById('contaNomeOutro').value = (c && c.banco==='outro' && c.nome) ? c.nome : '';
+  fillContaSelect(c ? c.banco : null);
+  document.getElementById('contaOverlay').style.display='flex';
+}
+function delConta(id){
+  if(!confirm('Excluir esta conta?')) return;
+  data._contas = contas().filter(x=>String(x.id)!==String(id));
+  save(); renderContas();
+}
+function saveContaModal(){
+  const bc = document.getElementById('contaBanco').value;
+  const msg = document.getElementById('contaMsg');
+  if(!bc){ msg.textContent='Escolha um banco.'; return; }
+  const saldoIni = Math.round(parseValor(document.getElementById('contaSaldo').value)*100)/100;
+  let nCustom = null;
+  if(bc==='outro'){
+    nCustom = document.getElementById('contaNomeOutro').value.trim();
+    if(!nCustom){ msg.textContent='Digite o nome do banco.'; return; }
+  }
+  const list = contas();
+  if(contaMode==='edit'){
+    const c = list.find(x=>String(x.id)===String(contaEditId));
+    if(c){ c.banco = bc; c.nome = (bc==='outro') ? nCustom : null; c.saldoInicial = saldoIni||0; }
+  } else {
+    const dup = bc==='outro'
+      ? list.some(x=>x.banco==='outro' && x.nome && x.nome.toLowerCase()===nCustom.toLowerCase())
+      : list.some(x=>x.banco===bc);
+    if(dup){ msg.textContent = (bc==='outro') ? 'Já existe uma conta com esse nome.' : 'Já existe uma conta desse banco.'; return; }
+    list.push({id:'c'+Date.now(), banco: bc, nome: (bc==='outro') ? nCustom : null, saldoInicial: saldoIni||0});
+  }
+  save();
+  document.getElementById('contaOverlay').style.display='none';
+  renderContas();
+}
+document.getElementById('btnNovaConta').onclick = openNewConta;
+document.getElementById('btnContaOk').onclick = saveContaModal;
+document.getElementById('btnContaCancel').onclick = ()=>{ document.getElementById('contaOverlay').style.display='none'; };
+document.getElementById('contaBanco').onchange = syncContaNomeField;
+bindMoneyMask('contaSaldo');
 function renderBankBreakdown(records){
   const bankMap = {};
   records.forEach(r=>{ const k=r.banco||''; if(!bankMap[k]) bankMap[k]={rec:0,des:0}; if(r.tipo==='receitas') bankMap[k].rec+=r.valor; else bankMap[k].des+=r.valor; });
@@ -2164,21 +2382,23 @@ function hsvToRgb(h,s,v){
   return [Math.round(m[0]*255), Math.round(m[1]*255), Math.round(m[2]*255)];
 }
 function drawWheel(canvas){
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,R=w/2;
-  const img=ctx.createImageData(w,h);
-  for(let y=0;y<h;y++){
-    for(let x=0;x<w;x++){
-      const dx=x-cx,dy=y-cy,dist=Math.sqrt(dx*dx+dy*dy),i=(y*w+x)*4;
-      if(dist<=R){
-        const hue=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
-        const sat=Math.min(1,dist/R);
-        const [r,g,b]=hsvToRgb(hue,sat,1);
-        img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
-      } else { img.data[i+3]=0; }
+  try{
+    const ctx=canvas.getContext('2d'); if(!ctx) return;
+    const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,R=w/2;
+    const img=ctx.createImageData(w,h);
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const dx=x-cx,dy=y-cy,dist=Math.sqrt(dx*dx+dy*dy),i=(y*w+x)*4;
+        if(dist<=R){
+          const hue=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+          const sat=Math.min(1,dist/R);
+          const [r,g,b]=hsvToRgb(hue,sat,1);
+          img.data[i]=r; img.data[i+1]=g; img.data[i+2]=b; img.data[i+3]=255;
+        } else { img.data[i+3]=0; }
+      }
     }
-  }
-  ctx.putImageData(img,0,0);
+    ctx.putImageData(img,0,0);
+  }catch(err){ /* nunca quebra o load */ }
 }
 function applyBg(hex){
   const r=document.documentElement.style;
@@ -2231,56 +2451,108 @@ if(colorPick) colorPick.addEventListener('input', e=> applyCustomColor(e.target.
 // ====== METAS ======
 function metas(){ return data._metas || (data._metas = []); }
 function metasReservado(){ return Math.round(metas().reduce((s,g)=>s+g.guardado,0)*100)/100; }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function findMeta(id){ return metas().find(x=>String(x.id)===String(id)); }
+function metaDias(m){ if(!m.prazo) return null; const t=new Date(todayStr()).getTime(); const p=new Date(m.prazo+'T00:00:00').getTime(); return Math.round((p-t)/86400000); }
+function metaSub(m){
+  const d=metaDias(m);
+  if(d===null) return '';
+  if(d<0) return '<span class="mc-sub venc">Prazo vencido</span>';
+  return '<span class="mc-sub dias">'+d+' '+(d===1?'dia':'dias')+' restantes</span>';
+}
 function renderMetas(){
   const grid = document.getElementById('metasGrid');
   if(!grid) return;
   const list = metas();
-  if(list.length===0){ grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty"><span class="emoji">🎯</span>Nenhuma meta ainda. Adicione a primeira acima.</div></div>'; return; }
-  grid.innerHTML = list.map(g=>{
-    const pct = g.alvo>0 ? Math.min(100, Math.round(g.guardado/g.alvo*100)) : 0;
-    const alvo = g.alvo>0 ? ' de ' + fmtCurrency(g.alvo) : '';
-    return `<div class="meta-card">
-      <div class="mc-top"><span class="mc-nome">${esc(g.nome)}</span><span style="font-size:12px;color:var(--muted)">${pct}%</span></div>
-      <div class="meta-bar"><div style="width:${pct}%"></div></div>
-      <div class="mc-val"><b>${fmtCurrency(g.guardado)}</b> separado${alvo}</div>
-      <div class="meta-actions">
-        <button class="btn btn-ghost" style="flex:1;padding:8px" onclick="addMetaValor('${g.id}')">💰 + separar</button>
-        <button class="btn btn-ghost" style="flex:1;padding:8px" onclick="delMeta('${g.id}')">🗑️</button>
-      </div>
-    </div>`;
+  if(list.length===0){ grid.innerHTML = '<div class="card" style="grid-column:1/-1"><div class="empty"><span class="emoji">🎯</span>Nenhuma meta ainda. Clique em \"＋ Nova Meta\".</div></div>'; return; }
+  grid.innerHTML = list.map(m=>{
+    const pct = m.alvo>0 ? Math.min(100, (m.guardado/m.alvo)*100) : 0;
+    const done = m.alvo>0 && m.guardado>=m.alvo;
+    const cor = m.cor || '#f59e0b';
+    return '<div class="meta-card'+(done?' done':'')+'"'+(done?' style="border-color:'+cor+'"':'')+'>'
+      +'<div class="mc-top"><div class="mc-title"><span class="mc-emoji">'+(m.emoji||'🎯')+'</span><div class="mc-txt"><span class="mc-nome">'+esc(m.nome)+'</span>'+metaSub(m)+'</div></div>'
+      +'<div class="mc-actions">'
+      +'<button title="Editar" onclick="editMeta(\''+m.id+'\')">✏️</button>'
+      +'<button class="del" title="Excluir" onclick="delMeta(\''+m.id+'\')">🗑️</button></div></div>'
+      +'<div class="mc-values"><div class="mc-val"><span class="lbl">Atual</span><b>'+fmtCurrency(m.guardado)+'</b></div><div class="mc-val" style="text-align:right"><span class="lbl">Alvo</span><b>'+fmtCurrency(m.alvo)+'</b></div></div>'
+      +'<div class="meta-bar"><div style="width:'+pct.toFixed(1)+'%;background:'+cor+'"></div></div>'
+      +'<div class="mc-pct">'+pct.toFixed(1)+'%</div>'
+      +(done?'<div class="mc-done">🎉 Meta alcançada!</div>':'<button class="btn btn-gold btn-block" onclick="addMetaValor(\''+m.id+'\')">💰 + Depositar</button>')
+      +'</div>';
   }).join('');
 }
-function addMetaValor(id){
-  const m = metas().find(x=>String(x.id)===String(id)); if(!m) return;
-  const v = prompt('Quanto quer separar para "' + m.nome + '"?', '');
-  const val = Math.round(parseValor(v)*100)/100;
-  if(!val || val<=0) return;
-  m.guardado = Math.round((m.guardado+val)*100)/100;
-  save(); renderMetas();
+let metaMode='add', metaEditId=null;
+let metaSel='#f59e0b';
+function setMetaSw(c){
+  metaSel=c;
+  document.querySelectorAll('#metaSwatches .sw').forEach(s=>s.classList.toggle('on', s.dataset.c===c));
+}
+function openNewMeta(){
+  metaMode='add'; metaEditId=null;
+  document.getElementById('metaFormTitle').textContent='Nova Meta';
+  document.getElementById('btnMetaOk').textContent='Criar Meta';
+  document.getElementById('metaMsg').textContent='';
+  document.getElementById('metaTitulo').value='';
+  document.getElementById('metaAlvo').value='';
+  document.getElementById('metaAtual').value='';
+  document.getElementById('metaPrazo').value='';
+  document.getElementById('metaEmoji').value='🎯';
+  setMetaSw('#f59e0b');
+  document.getElementById('metaForm').style.display='block';
+}
+function editMeta(id){
+  const m = findMeta(id); if(!m) return;
+  metaMode='edit'; metaEditId=id;
+  document.getElementById('metaFormTitle').textContent='Editar Meta';
+  document.getElementById('btnMetaOk').textContent='Salvar';
+  document.getElementById('metaMsg').textContent='';
+  document.getElementById('metaTitulo').value=m.nome||'';
+  document.getElementById('metaAlvo').value=m.alvo?fmtMoney(m.alvo):'';
+  document.getElementById('metaAtual').value=m.guardado?fmtMoney(m.guardado):'';
+  document.getElementById('metaPrazo').value=m.prazo||'';
+  document.getElementById('metaEmoji').value=m.emoji||'🎯';
+  setMetaSw(m.cor||'#f59e0b');
+  document.getElementById('metaForm').style.display='block';
 }
 function delMeta(id){
   if(!confirm('Excluir esta meta?')) return;
   data._metas = metas().filter(x=>String(x.id)!==String(id));
-  save(); renderMetas();
+  save(); render();
 }
-function resetMetaForm(){
-  document.getElementById('metaNome').value='';
-  document.getElementById('metaAlvo').value='';
-  document.getElementById('metaValor').value='';
+function addMetaValor(id){
+  const m = findMeta(id); if(!m) return;
+  const v = prompt('Quanto quer depositar em "' + m.nome + '"?', '');
+  const val = Math.round(parseValor(v)*100)/100;
+  if(!val || val<=0) return;
+  m.guardado = Math.round((m.guardado+val)*100)/100;
+  save(); render();
 }
-document.getElementById('btnMetaAdd').onclick = ()=>{
-  const nome = document.getElementById('metaNome').value.trim();
+function saveMetaModal(){
+  const titulo = document.getElementById('metaTitulo').value.trim();
   const alvo = Math.round(parseValor(document.getElementById('metaAlvo').value)*100)/100;
-  const val = Math.round(parseValor(document.getElementById('metaValor').value)*100)/100;
-  if(!nome || !val || val<=0){ alert('Preencha o nome e quanto quer separar.'); return; }
-  const list = metas();
-  let m = list.find(x=>x.nome.toLowerCase()===nome.toLowerCase());
-  if(m){ m.guardado = Math.round((m.guardado+val)*100)/100; }
-  else { list.push({id: Date.now(), nome, alvo: alvo||0, guardado: val}); }
-  save(); renderMetas(); resetMetaForm();
-};
-bindMoneyMask('metaValor');
+  const atual = Math.round(parseValor(document.getElementById('metaAtual').value)*100)/100;
+  const prazo = document.getElementById('metaPrazo').value;
+  const emoji = document.getElementById('metaEmoji').value.trim()||'🎯';
+  const cor = metaSel;
+  const msg = document.getElementById('metaMsg');
+  if(!titulo || !alvo || alvo<=0){ msg.textContent='Preencha o título e o valor alvo.'; return; }
+  if(metaMode==='edit'){
+    const m = findMeta(metaEditId);
+    if(m){ m.nome=titulo; m.alvo=alvo; m.guardado=atual||0; m.prazo=prazo||null; m.emoji=emoji; m.cor=cor; }
+  } else {
+    metas().push({id:Date.now(), nome:titulo, alvo:alvo, guardado:atual||0, prazo:prazo||null, emoji:emoji, cor:cor});
+  }
+  save();
+  document.getElementById('metaForm').style.display='none';
+  render();
+}
+document.getElementById('btnNovaMeta').onclick = openNewMeta;
+document.getElementById('btnMetaOk').onclick = saveMetaModal;
+document.getElementById('btnMetaCancel').onclick = ()=>{ document.getElementById('metaForm').style.display='none'; };
+document.getElementById('btnMetaClose').onclick = ()=>{ document.getElementById('metaForm').style.display='none'; };
 bindMoneyMask('metaAlvo');
+bindMoneyMask('metaAtual');
+document.querySelectorAll('#metaSwatches .sw').forEach(s=>{ s.onclick=()=>setMetaSw(s.dataset.c); });
 // Botões da sidebar (cor/perfil/sair)
 document.getElementById('btnSideTheme').onclick = (e)=>{ e.stopPropagation(); const p=document.getElementById('themePanel'); p.style.display = p.style.display==='none' ? 'block' : 'none'; document.getElementById('profilePanel').style.display='none'; };
 document.getElementById('btnSideProfile').onclick = (e)=>{ e.stopPropagation(); document.getElementById('themePanel').style.display='none'; document.getElementById('profNome').value = currentUser.nome; document.getElementById('profSenhaAtual').value=''; document.getElementById('profNovaSenha').value=''; showProfileMsg(''); const p=document.getElementById('profilePanel'); p.style.display = p.style.display==='none' ? 'block' : 'none'; };
